@@ -83,27 +83,57 @@ def dashboard():
 
 
 @app.post("/api/rescue")
-def rescue(req: RescueRequest):
-    result = run_rescue_graph(req.model_dump())
-    return {
-        "mission_status": "response_plan_generated",
-        "risk_level": result.get("risk_level", "medium"),
-        "summary": result.get("summary"),
-        "agents_used": result.get("agents_used", []),
-        "a2a_trace": result.get("a2a_trace", []),
-        "a2a_messages": result.get("a2a_messages", []),
-        "disaster_analysis": result.get("disaster_analysis", {}),
-        "priority_score": result.get("priority_score", {}),
-        "damage_assessment": result.get("damage_assessment", {}),
-        "shelters": result.get("shelters", []),
-        "routes": result.get("routes", {}),
-        "resources": result.get("resources", {}),
-        "resource_priority": result.get("resource_priority", []),
-        "medical_triage": result.get("medical_triage", {}),
-        "volunteers": result.get("volunteers", {}),
-        "public_alert": result.get("public_alert", {}),
-        "recommended_actions": result.get("recommended_actions", []),
-    }
+def rescue_mission(payload: RescueRequest):
+    request_payload = payload.model_dump() if hasattr(payload, "model_dump") else payload.dict()
+    location = request_payload.get("location", "Hyderabad")
+    severity = request_payload.get("severity", "High")
+    disaster_type = request_payload.get("disaster_type", "Flood")
+
+    state = run_rescue_graph(request_payload)
+    live_data = fetch_live_data_bundle(location)
+    try:
+        snapshot = get_operational_snapshot(location)
+    except Exception:
+        snapshot = {}
+
+    a2a_trace = state.get("a2a_trace", [])
+    a2a_messages = state.get("a2a_messages") or [
+        {
+            "message_type": "handoff",
+            "sequence": idx + 1,
+            "detail": msg,
+            "status": "sent",
+            "location": location,
+            "disaster_type": disaster_type.lower(),
+            "priority": severity.lower(),
+        }
+        for idx, msg in enumerate(a2a_trace)
+    ]
+
+    state["location"] = location
+    state["live_data_sources"] = live_data
+    state["live_weather"] = live_data.get("live_weather", {})
+    state["live_disaster_events"] = live_data.get("live_disaster_events", {})
+    state["live_earthquakes"] = live_data.get("live_earthquakes", {})
+    state["live_geocoding"] = live_data.get("live_geocoding", {})
+    state["live_routing"] = live_data.get("live_routing", {})
+    state["a2a_messages"] = a2a_messages
+
+    # Override operational sections from selected city snapshot so no city falls back visually.
+    state["resources"] = snapshot.get("resource_inventory", state.get("resources", {}))
+    state["hospitals"] = snapshot.get("hospitals", [])
+    state["routes"] = snapshot.get("routes", state.get("routes", {}))
+    state["volunteers"] = snapshot.get("volunteer_units", state.get("volunteers", {}))
+    state["operational_snapshot"] = snapshot
+
+    if "disaster_analysis" in state:
+        state["disaster_analysis"]["location"] = location
+
+    if "public_alert" in state:
+        state["public_alert"]["message"] = f"URGENT: High-risk emergency near {location}. Follow evacuation instructions and move to nearest safe shelter."
+
+    state["a2a_messages"] = a2a_messages
+    return state
 
 
 @app.get("/api/mcp/server")

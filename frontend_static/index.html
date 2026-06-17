@@ -475,7 +475,7 @@
       const a2aMessages = await getJson("/api/a2a/messages");
 
       document.getElementById("backendStatus").innerText = health.status || "running";
-      document.getElementById("systemStatus").innerText = health.status || "running";
+      document.getElementById("systemStatus").innerText = "Operational";
       document.getElementById("currentRisk").innerText = mcpContext.weather?.risk || "Awaiting Mission";
       document.getElementById("mcpTools").innerText = mcpServer.count || 8;
 
@@ -527,3 +527,23 @@
 </script>
 </body>
 </html>
+
+<style>
+.stat-card {
+  overflow: hidden !important;
+}
+
+.stat-value {
+  font-size: 1.55rem !important;
+  line-height: 1.15 !important;
+  max-width: 160px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#systemStatus {
+  max-width: 150px !important;
+  display: block !important;
+}
+</style>

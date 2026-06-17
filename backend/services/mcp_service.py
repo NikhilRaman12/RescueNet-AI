@@ -173,6 +173,7 @@ def public_warning_tool(location: str, risk_level: str = "medium") -> Dict[str, 
 def fetch_external_context(location: str = "Hyderabad", risk_level: str = "medium") -> Dict[str, Any]:
     store = get_database()
     return {
+        "live_data_sources": fetch_live_data_bundle(location),
         "operational_snapshot": store.get_operational_snapshot(location),
         "weather": weather_alert_tool(location),
         "disaster_warning": disaster_warning_tool(location),

@@ -1,5 +1,6 @@
 from typing import TypedDict, Dict, Any, List
 from backend.a2a.protocol import a2a_handoff
+from backend.services.live_data_tools import fetch_live_data_bundle
 from backend.a2a.protocol import a2a_handoff
 
 try:
@@ -40,6 +41,12 @@ class RescueState(TypedDict, total=False):
     volunteers: Dict[str, int]
     public_alert: Dict[str, Any]
     recommended_actions: List[str]
+    live_data_sources: Dict[str, Any]
+    live_weather: Dict[str, Any]
+    live_disaster_events: Dict[str, Any]
+    live_earthquakes: Dict[str, Any]
+    live_geocoding: Dict[str, Any]
+    live_routing: Dict[str, Any]
     summary: str
     agents_used: List[str]
     a2a_trace: List[str]
@@ -224,14 +231,23 @@ def mission_node(state: RescueState) -> RescueState:
 
 
 def initial_state(payload: Dict[str, Any]) -> RescueState:
+    location = payload.get("location", "Hyderabad")
+    live_data = fetch_live_data_bundle(location)
+
     return {
+        "location": location,
+        "disaster_type": payload.get("disaster_type", "flood").lower(),
+        "severity": payload.get("severity", "medium").lower(),
         "query": payload.get("query", ""),
-        "location": payload.get("location", "Unknown"),
-        "disaster_type": payload.get("disaster_type", "general"),
-        "severity": payload.get("severity", "medium"),
-        "context": payload.get("context", {}),
         "agents_used": [],
         "a2a_trace": [],
+        "correlation_id": payload.get("correlation_id", ""),
+        "live_data_sources": live_data,
+        "live_weather": live_data.get("live_weather", {}),
+        "live_disaster_events": live_data.get("live_disaster_events", {}),
+        "live_earthquakes": live_data.get("live_earthquakes", {}),
+        "live_geocoding": live_data.get("live_geocoding", {}),
+        "live_routing": live_data.get("live_routing", {}),
     }
 
 

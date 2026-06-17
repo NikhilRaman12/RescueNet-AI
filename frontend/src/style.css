@@ -406,3 +406,21 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+.stat-card {
+  overflow: hidden !important;
+}
+
+.stat-value {
+  font-size: 1.55rem !important;
+  line-height: 1.15 !important;
+  max-width: 160px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+#systemStatus {
+  max-width: 150px !important;
+  display: block !important;
+}

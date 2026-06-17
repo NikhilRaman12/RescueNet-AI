@@ -221,28 +221,10 @@ function App() {
               <label>
                 Location
                 <select value={location} onChange={(e) =>
-
           <option>Hyderabad</option>
           <option>Vijayawada</option>
           <option>Chennai</option>
           <option>Mumbai</option>
-          <option>Delhi</option>
-          <option>Kolkata</option>
-          <option>Bengaluru</option>
-          <option>Visakhapatnam</option>
-          <option>Bhubaneswar</option>
-          <option>Guwahati</option>
-          <option>Kochi</option>
-          <option>Pune</option>
-          <option>Ahmedabad</option>
-          <option>Surat</option>
-          <option>Jaipur</option>
-          <option>Lucknow</option>
-          <option>Patna</option>
-          <option>Bhopal</option>
-          <option>Indore</option>
-          <option>Nagpur</option>
-  <option>Mumbai</option>
           <option>Delhi</option>
           <option>Kolkata</option>
           <option>Bengaluru</option>
