@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 from uuid import uuid4
 
 from backend.database.mongo import get_database
+from backend.services.live_data_tools import fetch_live_data_bundle
 
 
 MCP_EVENTS: List[Dict[str, Any]] = []

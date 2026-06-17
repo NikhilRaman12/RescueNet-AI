@@ -181,7 +181,7 @@ function App() {
         <div className="side-section">
           <h3>Backend</h3>
           <div className="backend-url">{API_BASE}</div>
-          <StatusPill status={health?.status || "checking"} />
+          <StatusPill status={health?.status || "connectonnecting"} />
         </div>
       </aside>
 
@@ -189,7 +189,7 @@ function App() {
         <header className="topbar">
           <div>
             <h2>Emergency Operations Console</h2>
-            <p>FastAPI + LangGraph StateGraph + MCP tools + A2A protocol + operational data layer</p>
+            <p>FastAPI + LangChain + LangChain + LangGraph StateGraph + MCP TTools + A2A PProtocol + Operational Data LOperational Data Layer</p>
           </div>
           <button className="secondary-btn" onClick={refreshSystem}>
             <RefreshCw size={17} /> Refresh System
@@ -204,7 +204,7 @@ function App() {
         )}
 
         <section className="stats-grid">
-          <StatCard icon={Activity} label="System Status" value={health?.status || "checking"} accent="green" />
+          <StatCard icon={Activity} label="System Status" value={health?.status || "connectonnecting"} accent="green" />
           <StatCard icon={AlertTriangle} label="Current Risk" value={risk} accent={risk === "high" ? "red" : "amber"} />
           <StatCard icon={Bot} label="Agents" value="10" accent="blue" />
           <StatCard icon={Database} label="MCP Tools" value={mcpServer?.count || mcpServer?.tools?.count || 8} accent="purple" />
@@ -220,11 +220,28 @@ function App() {
             <div className="form-grid">
               <label>
                 Location
-                <select value={location} onChange={(e) => setLocation(e.target.value)}>
-                  <option>Hyderabad</option>
-                  <option>Vijayawada</option>
-                  <option>Chennai</option>
-                </select>
+                <select value={location} onChange={(e) =>
+          <option>Hyderabad</option>
+          <option>Vijayawada</option>
+          <option>Chennai</option>
+          <option>Mumbai</option>
+          <option>Delhi</option>
+          <option>Kolkata</option>
+          <option>Bengaluru</option>
+          <option>Visakhapatnam</option>
+          <option>Bhubaneswar</option>
+          <option>Guwahati</option>
+          <option>Kochi</option>
+          <option>Pune</option>
+          <option>Ahmedabad</option>
+          <option>Surat</option>
+          <option>Jaipur</option>
+          <option>Lucknow</option>
+          <option>Patna</option>
+          <option>Bhopal</option>
+          <option>Indore</option>
+          <option>Nagpur</option>
+        </select>
               </label>
 
               <label>
@@ -254,7 +271,7 @@ function App() {
             </label>
 
             <button className="primary-btn" onClick={runRescueMission} disabled={loading}>
-              <Send size={17} /> {loading ? "Coordinating Agents..." : "Run Multi-Agent Rescue Plan"}
+              <Send size={17} /> {loading ? "Coordinating Agents..." : "Run LangGraph Rescue LangGraph Rescue Missioission"}
             </button>
           </div>
 
@@ -277,7 +294,7 @@ function App() {
                 </ul>
               </>
             ) : (
-              <div className="empty-state">Run a mission to generate an agent-coordinated response plan.</div>
+              <div className="empty-state">Run a LanLangGraph-orchestrated multi-Graph-orchestrated multi-agent rescue missio rescue mission.</div>
             )}
           </div>
         </section>

@@ -272,7 +272,7 @@
     <div class="side-section">
       <h3>Backend</h3>
       <div style="font-size:12px;color:#91a3b8;word-break:break-all;margin-bottom:12px;" id="apiBase"></div>
-      <span class="pill" id="backendStatus">checking</span>
+      <span class="pill" id="backendStatus">connecting</span>
     </div>
   </aside>
 
@@ -280,7 +280,7 @@
     <header class="topbar">
       <div>
         <h2>Emergency Operations Console</h2>
-        <p>FastAPI + LangGraph StateGraph + MCP tools + A2A protocol + operational data layer</p>
+        <p>FastAPI + LangChain + LangGraph StateGraph + MCP Tools + A2A Protocol + Operational Data Layer</p>
       </div>
       <button class="secondary-btn" onclick="refreshSystem()">↻ Refresh System</button>
     </header>
@@ -288,7 +288,7 @@
     <div class="error-box" id="errorBox"></div>
 
     <section class="stats-grid">
-      <div class="stat-card"><div class="stat-icon">📡</div><div><div class="stat-label">System Status</div><div class="stat-value" id="systemStatus">checking</div></div></div>
+      <div class="stat-card"><div class="stat-icon">📡</div><div><div class="stat-label">System Status</div><div class="stat-value" id="systemStatus">connecting</div></div></div>
       <div class="stat-card"><div class="stat-icon">⚠️</div><div><div class="stat-label">Incident Risk</div><div class="stat-value" id="currentRisk">Awaiting Mission</div></div></div>
       <div class="stat-card"><div class="stat-icon">🤖</div><div><div class="stat-label">Agents</div><div class="stat-value">10</div></div></div>
       <div class="stat-card"><div class="stat-icon">🧩</div><div><div class="stat-label">MCP Tools</div><div class="stat-value" id="mcpTools">8</div></div></div>
@@ -301,10 +301,27 @@
         <div class="form-grid">
           <label>Location
             <select id="location">
-              <option>Hyderabad</option>
-              <option>Vijayawada</option>
-              <option>Chennai</option>
-            </select>
+          <option>Hyderabad</option>
+          <option>Vijayawada</option>
+          <option>Chennai</option>
+          <option>Mumbai</option>
+          <option>Delhi</option>
+          <option>Kolkata</option>
+          <option>Bengaluru</option>
+          <option>Visakhapatnam</option>
+          <option>Bhubaneswar</option>
+          <option>Guwahati</option>
+          <option>Kochi</option>
+          <option>Pune</option>
+          <option>Ahmedabad</option>
+          <option>Surat</option>
+          <option>Jaipur</option>
+          <option>Lucknow</option>
+          <option>Patna</option>
+          <option>Bhopal</option>
+          <option>Indore</option>
+          <option>Nagpur</option>
+        </select>
           </label>
 
           <label>Disaster Type
@@ -330,12 +347,12 @@
           <textarea id="query">Flood alert near river zone. People are trapped and injured. Evacuation is needed.</textarea>
         </label>
 
-        <button class="primary-btn" onclick="runRescueMission()">▶ Run Multi-Agent Rescue Plan</button>
+        <button class="primary-btn" onclick="runRescueMission()">▶ Run LangGraph Rescue Mission</button>
       </div>
 
       <div class="panel">
         <div class="panel-title"><span>🧠</span><h3>Mission Output</h3></div>
-        <div id="missionOutput" class="empty-state">Run a mission to generate an agent-coordinated response plan.</div>
+        <div id="missionOutput" class="empty-state">Run a LangGraph-orchestrated multi-agent rescue mission.</div>
       </div>
     </section>
 

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from backend.services.rescue_graph import LANGGRAPH_AVAILABLE, run_rescue_graph
 from backend.services.mcp_service import fetch_external_context, get_mcp_events, register_mcp_handlers
+from backend.services.live_data_tools import fetch_live_data_bundle
 from backend.a2a.protocol import get_a2a_conversation, get_a2a_messages
 
 
@@ -140,3 +141,8 @@ def operational_snapshot(location: str = "Hyderabad"):
 def operational_incidents(limit: int = 20):
     from backend.database.mongo import list_incidents
     return {"incidents": list_incidents(limit)}
+
+
+@app.get("/api/live/data")
+def live_data(location: str = "Hyderabad"):
+    return fetch_live_data_bundle(location)
