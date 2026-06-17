@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RescueNet AI Command Center</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --panel: rgba(15, 27, 48, 0.92);
+      --panel2: rgba(20, 36, 64, 0.76);
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #eef6ff;
+      --muted: #91a3b8;
+      --blue: #38bdf8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --purple: #a78bfa;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,.18), transparent 32%),
+        radial-gradient(circle at top right, rgba(34,197,94,.12), transparent 28%),
+        linear-gradient(135deg, #07101d 0%, #0b1220 48%, #020617 100%);
+    }
+
+    .app { min-height: 100vh; display: flex; }
+
+    .sidebar {
+      width: 320px;
+      padding: 24px;
+      border-right: 1px solid var(--border);
+      background: rgba(2, 6, 23, .75);
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow: auto;
+    }
+
+    .brand { display: flex; gap: 14px; align-items: center; margin-bottom: 24px; }
+    .brand-icon {
+      width: 54px; height: 54px; border-radius: 18px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, rgba(56,189,248,.28), rgba(34,197,94,.18));
+      border: 1px solid var(--border);
+      font-size: 28px;
+    }
+    .brand h1 { margin: 0; font-size: 25px; letter-spacing: -.04em; }
+    .brand p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+
+    .side-section {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: rgba(15, 23, 42, .62);
+    }
+
+    .side-section h3 { margin: 0 0 14px; font-size: 14px; color: #c8d7e8; }
+
+    .agent-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 0;
+      color: #dce9f7;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(148,163,184,.08);
+    }
+    .agent-row:last-child { border-bottom: none; }
+
+    .agent-index {
+      width: 24px; height: 24px; border-radius: 999px;
+      display: grid; place-items: center;
+      background: rgba(56,189,248,.15);
+      color: var(--blue);
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .main { flex: 1; padding: 28px; overflow: auto; }
+
+    .topbar {
+      display: flex; justify-content: space-between; gap: 20px; align-items: flex-start;
+      margin-bottom: 24px;
+    }
+    .topbar h2 { margin: 0; font-size: 34px; letter-spacing: -.05em; }
+    .topbar p { margin: 8px 0 0; color: var(--muted); }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card, .panel {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 24px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.22);
+    }
+
+    .stat-card { padding: 18px; display: flex; gap: 14px; align-items: center; }
+    .stat-icon {
+      width: 46px; height: 46px; border-radius: 17px;
+      display: grid; place-items: center;
+      background: rgba(148,163,184,.12);
+      font-size: 22px;
+    }
+    .stat-label { color: var(--muted); font-size: 13px; }
+    .stat-value { margin-top: 4px; font-size: 22px; font-weight: 900; text-transform: capitalize; }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .grid-four {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .panel { padding: 20px; }
+    .panel-title { display: flex; gap: 10px; align-items: center; color: #dff3ff; }
+    .panel-title h3 { margin: 0; font-size: 18px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    label { color: #cbd5e1; font-size: 13px; font-weight: 800; }
+    select, textarea {
+      width: 100%;
+      margin-top: 8px;
+      border: 1px solid var(--border);
+      background: rgba(2,6,23,.68);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px;
+      outline: none;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .textarea-label { display: block; margin-top: 16px; }
+
+    button {
+      border: 0;
+      color: white;
+      border-radius: 15px;
+      padding: 12px 16px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+    }
+    .primary-btn {
+      margin-top: 16px;
+      width: 100%;
+      justify-content: center;
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
+    }
+    .secondary-btn {
+      background: rgba(56,189,248,.12);
+      border: 1px solid rgba(56,189,248,.25);
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      background: rgba(148,163,184,.14);
+      color: #cbd5e1;
+    }
+    .pill.ok, .pill.running, .pill.success {
+      background: rgba(34,197,94,.13); color: #86efac;
+    }
+    .pill.high, .pill.critical {
+      background: rgba(239,68,68,.16); color: #fca5a5;
+    }
+    .pill.medium, .pill.pending {
+      background: rgba(245,158,11,.14); color: #fcd34d;
+    }
+
+    .mission-summary {
+      margin-top: 18px;
+      padding: 15px;
+      border-radius: 18px;
+      background: rgba(2,6,23,.45);
+      border: 1px solid var(--border);
+    }
+
+    .action-list { padding-left: 20px; color: #dbeafe; line-height: 1.6; }
+
+    .json-block {
+      margin: 14px 0 0;
+      max-height: 420px;
+      overflow: auto;
+      background: rgba(2,6,23,.74);
+      border: 1px solid rgba(148,163,184,.12);
+      border-radius: 18px;
+      padding: 14px;
+      color: #c4f1ff;
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .error-box {
+      display: none;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(239,68,68,.35);
+      background: rgba(239,68,68,.12);
+      color: #fecaca;
+    }
+
+    .empty-state {
+      margin-top: 18px;
+      color: var(--muted);
+      padding: 30px;
+      border: 1px dashed var(--border);
+      border-radius: 18px;
+      text-align: center;
+    }
+
+    @media (max-width: 1200px) {
+      .grid-four, .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .grid-two { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+    @media (max-width: 700px) {
+      .main { padding: 16px; }
+      .topbar, .form-grid { display: block; }
+      .stats-grid, .grid-four { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <div>
+        <h1>RescueNet AI</h1>
+        <p>Autonomous Disaster Response Command System</p>
+      </div>
+    </div>
+
+    <div class="side-section">
+      <h3>Agent Network</h3>
+      <div id="agentList"></div>
+    </div>
+
+    <div class="side-section">
+      <h3>Backend</h3>
+      <div style="font-size:12px;color:#91a3b8;word-break:break-all;margin-bottom:12px;" id="apiBase"></div>
+      <span class="pill" id="backendStatus">checking</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h2>Emergency Operations Console</h2>
+        <p>FastAPI + LangGraph StateGraph + MCP tools + A2A protocol + operational data layer</p>
+      </div>
+      <button class="secondary-btn" onclick="refreshSystem()">↻ Refresh System</button>
+    </header>
+
+    <div class="error-box" id="errorBox"></div>
+
+    <section class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">📡</div><div><div class="stat-label">System Status</div><div class="stat-value" id="systemStatus">checking</div></div></div>
+      <div class="stat-card"><div class="stat-icon">⚠️</div><div><div class="stat-label">Incident Risk</div><div class="stat-value" id="currentRisk">Awaiting Mission</div></div></div>
+      <div class="stat-card"><div class="stat-icon">🤖</div><div><div class="stat-label">Agents</div><div class="stat-value">10</div></div></div>
+      <div class="stat-card"><div class="stat-icon">🧩</div><div><div class="stat-label">MCP Tools</div><div class="stat-value" id="mcpTools">8</div></div></div>
+    </section>
+
+    <section class="grid-two">
+      <div class="panel">
+        <div class="panel-title"><span>📢</span><h3>Launch Rescue Mission</h3></div>
+
+        <div class="form-grid">
+          <label>Location
+            <select id="location">
+              <option>Hyderabad</option>
+              <option>Vijayawada</option>
+              <option>Chennai</option>
+            </select>
+          </label>
+
+          <label>Disaster Type
+            <select id="disasterType">
+              <option value="flood">Flood</option>
+              <option value="cyclone">Cyclone</option>
+              <option value="earthquake">Earthquake</option>
+              <option value="fire">Fire</option>
+              <option value="landslide">Landslide</option>
+            </select>
+          </label>
+
+          <label>Severity
+            <select id="severity">
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="textarea-label">Incident Query
+          <textarea id="query">Flood alert near river zone. People are trapped and injured. Evacuation is needed.</textarea>
+        </label>
+
+        <button class="primary-btn" onclick="runRescueMission()">▶ Run Multi-Agent Rescue Plan</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span>🧠</span><h3>Mission Output</h3></div>
+        <div id="missionOutput" class="empty-state">Run a mission to generate an agent-coordinated response plan.</div>
+      </div>
+    </section>
+
+    <section class="grid-four">
+      <div class="panel"><div class="panel-title"><span>📦</span><h3>Resources</h3></div><pre class="json-block" id="resourcesBlock">{}</pre></div>
+      <div class="panel"><div class="panel-title"><span>🏥</span><h3>Hospitals</h3></div><pre class="json-block" id="hospitalsBlock">{}</pre></div>
+      <div class="panel"><div class="panel-title"><span>🗺️</span><h3>Routes</h3></div><pre class="json-block" id="routesBlock">{}</pre></div>
+      <div class="panel"><div class="panel-title"><span>👥</span><h3>Volunteers</h3></div><pre class="json-block" id="volunteersBlock">{}</pre></div>
+    </section>
+
+    <section class="grid-two">
+      <div class="panel"><div class="panel-title"><span>🔁</span><h3>A2A Agent Communication</h3></div><pre class="json-block" id="a2aBlock">{}</pre></div>
+      <div class="panel"><div class="panel-title"><span>🧩</span><h3>MCP Operational Context</h3></div><pre class="json-block" id="mcpBlock">{}</pre></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title"><span>🚑</span><h3>Full Rescue Response Payload</h3></div>
+      <pre class="json-block" id="fullPayload">{ "message": "No mission executed yet." }</pre>
+    </section>
+  </main>
+</div>
+
+<script>
+  
+  function getApiBase() {
+    const path = window.location.pathname;
+    const match = path.match(/^(.*\/proxy\/\d+)/);
+    if (match) return window.location.origin + match[1];
+    return window.location.origin;
+  }
+
+  const API_BASE = getApiBase();
+
+
+  const agents = [
+    "Disaster Intelligence",
+    "Priority Scoring",
+    "Damage Assessment",
+    "Shelter Coordination",
+    "Route Optimization",
+    "Resource Allocation",
+    "Medical Triage",
+    "Volunteer Coordination",
+    "Public Alert",
+    "Mission Planner"
+  ];
+
+  document.getElementById("apiBase").innerText = API_BASE;
+  document.getElementById("agentList").innerHTML = agents.map((a, i) =>
+    `<div class="agent-row"><span class="agent-index">${i + 1}</span><span>${a}</span></div>`
+  ).join("");
+
+  function showError(message) {
+    const box = document.getElementById("errorBox");
+    box.style.display = "block";
+    box.innerText = message;
+  }
+
+  function clearError() {
+    const box = document.getElementById("errorBox");
+    box.style.display = "none";
+    box.innerText = "";
+  }
+
+  function setJson(id, data) {
+    document.getElementById(id).innerText = JSON.stringify(data || {}, null, 2);
+  }
+
+  async function getJson(path) {
+    const url = `${API_BASE}${path}`;
+    const res = await fetch(url);
+    const contentType = res.headers.get("content-type") || "";
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`${path} failed with ${res.status}: ${text.slice(0, 160)}`);
+    }
+
+    if (!contentType.includes("application/json")) {
+      const text = await res.text();
+      throw new Error(`${path} returned non-JSON response. Check API_BASE=${API_BASE}. Preview: ${text.slice(0, 120)}`);
+    }
+
+    return res.json();
+  }
+
+  async function postJson(path, payload) {
+    const url = `${API_BASE}${path}`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+
+    const contentType = res.headers.get("content-type") || "";
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`${path} failed with ${res.status}: ${text.slice(0, 160)}`);
+    }
+
+    if (!contentType.includes("application/json")) {
+      const text = await res.text();
+      throw new Error(`${path} returned non-JSON response. Check API_BASE=${API_BASE}. Preview: ${text.slice(0, 120)}`);
+    }
+
+    return res.json();
+  }
+
+  async function refreshSystem() {
+    clearError();
+    try {
+      const location = document.getElementById("location").value;
+      const severity = document.getElementById("severity").value;
+
+      const health = await getJson("/health").catch(() => getJson("/"));
+      const snapshot = await getJson(`/api/data/snapshot?location=${encodeURIComponent(location)}`);
+      const mcpServer = await getJson("/api/mcp/server");
+      const mcpContext = await getJson(`/api/mcp/context?location=${encodeURIComponent(location)}&risk_level=${encodeURIComponent(severity)}`);
+      const a2aMessages = await getJson("/api/a2a/messages");
+
+      document.getElementById("backendStatus").innerText = health.status || "running";
+      document.getElementById("systemStatus").innerText = health.status || "running";
+      document.getElementById("currentRisk").innerText = mcpContext.weather?.risk || "Awaiting Mission";
+      document.getElementById("mcpTools").innerText = mcpServer.count || 8;
+
+      setJson("resourcesBlock", snapshot.resource_inventory || {});
+      setJson("hospitalsBlock", snapshot.hospitals || {});
+      setJson("routesBlock", snapshot.routes || {});
+      setJson("volunteersBlock", snapshot.volunteer_units || {});
+      setJson("a2aBlock", a2aMessages || {});
+      setJson("mcpBlock", mcpContext || {});
+    } catch (err) {
+      showError(err.message);
+    }
+  }
+
+  async function runRescueMission() {
+    clearError();
+    try {
+      const payload = {
+        query: document.getElementById("query").value,
+        location: document.getElementById("location").value,
+        disaster_type: document.getElementById("disasterType").value,
+        severity: document.getElementById("severity").value,
+        context: {
+          operator: "Emergency Command Center",
+          source: "RescueNet AI Console"
+        }
+      };
+
+      const result = await postJson("/api/rescue", payload);
+
+      document.getElementById("currentRisk").innerText = result.risk_level || "Awaiting Mission";
+      document.getElementById("missionOutput").className = "mission-summary";
+      document.getElementById("missionOutput").innerHTML = `
+        <span class="pill ${result.risk_level || ""}">${result.risk_level || "risk"}</span>
+        <p>${result.summary || "Mission plan generated."}</p>
+        <h4>Recommended Actions</h4>
+        <ul class="action-list">${(result.recommended_actions || []).map(a => `<li>${a}</li>`).join("")}</ul>
+      `;
+
+      setJson("a2aBlock", result.a2a_messages?.length ? result.a2a_messages : result.a2a_trace);
+      setJson("fullPayload", result);
+      await refreshSystem();
+    } catch (err) {
+      showError(err.message);
+    }
+  }
+
+  refreshSystem();
+</script>
+</body>
+</html>
