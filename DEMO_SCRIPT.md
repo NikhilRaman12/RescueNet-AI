@@ -58,3 +58,7 @@ Approve the response plan. The action is written to the audit trail.
 ## Closing
 
 RescueNet Slack does not replace emergency authorities. It gives commanders faster context, safer prioritization, and a clear human-in-the-loop decision record.
+
+## Secondary Public Link
+
+If judges need a public deployed link, open the Streamlit Command Center. It is a secondary demo surface for Hugging Face Spaces or Streamlit Community Cloud. The primary product experience remains the Slack app.

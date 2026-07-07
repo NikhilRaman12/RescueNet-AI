@@ -8,6 +8,12 @@ RescueNet Slack upgrades the existing RescueNet AI disaster response system into
 
 The project preserves the existing RescueNet AI backend, multi-agent rescue graph, MCP-style operational tools, A2A trace output, dashboard assets, and tests. Slack is added as the primary command interface for hackathon demos.
 
+Primary UX: Slack App / Slack Agent
+
+Secondary deployed link: Streamlit Command Center
+
+Deployment targets: Hugging Face Spaces or Streamlit Community Cloud
+
 ## Problem
 
 During floods, cyclones, earthquakes, and other emergencies, crucial updates are scattered across Slack channels, field reports, shelter notes, weather alerts, and resource messages. Teams lose time searching for context, validating resource availability, and deciding which incident needs action first.
@@ -40,6 +46,16 @@ RescueNet Slack gives response teams a shared operational loop:
 - Thread-ready response payloads
 - Local demo mode without paid APIs
 
+## Secondary Command Center
+
+The Streamlit Command Center is a secondary deployed demo for judges who need a public link. It uses the same `rescuenet_slack` orchestration as the Slack slash command flow and is deployable to Hugging Face Spaces or Streamlit Community Cloud.
+
+Run locally:
+
+```bash
+streamlit run streamlit_app.py
+```
+
 ## Architecture
 
 ```text
@@ -67,6 +83,7 @@ Audit Trail
 - Python
 - FastAPI
 - Slack Bolt for Python
+- Streamlit
 - Pydantic
 - LangGraph with sequential fallback
 - MCP-compatible local tool facade
@@ -151,6 +168,18 @@ docker compose up --build
 
 The backend runs on `http://127.0.0.1:8010`.
 
+## Streamlit Deployment
+
+Use `streamlit_app.py` as the app entrypoint.
+
+- Hugging Face Spaces: SDK `Streamlit`, app file `streamlit_app.py`
+- Streamlit Community Cloud: main file path `streamlit_app.py`
+
+Deployment guides:
+
+- `deployment/huggingface_spaces.md`
+- `deployment/streamlit_cloud.md`
+
 ## Safety
 
 RescueNet Slack is decision support only. It does not replace emergency authorities, dispatch systems, or trained incident commanders. The agent always displays confidence, sources, and a human approval requirement before dispatch or escalation. If confidence is low or resource availability is uncertain, the response plan asks for verification before action.
@@ -163,7 +192,8 @@ RescueNet Slack is decision support only. It does not replace emergency authorit
 - `mcp_server/`: local MCP-compatible tool facade designed to be replaced by a real MCP server.
 - `data/`: demo Slack messages, shelter data, resource data, weather data, and generated audit log.
 - `docs/`: hackathon architecture, setup, demo, and submission notes.
-- `deployment/`: Render and Cloud Run deployment guides.
+- `deployment/`: Hugging Face Spaces, Streamlit Community Cloud, Render, and Cloud Run guides.
+- `command_center/`: secondary Streamlit Command Center.
 
 ## Verification
 

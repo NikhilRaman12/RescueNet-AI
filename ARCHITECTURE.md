@@ -22,6 +22,8 @@ Audit Trail
 
 The existing RescueNet AI backend remains the core emergency reasoning engine. Slack-native modules wrap the rescue graph with command parsing, context retrieval, MCP-compatible tool calls, response planning, Block Kit rendering, and human approval.
 
+Slack is the primary UX. The Streamlit Command Center is a secondary deployed demo that calls the same orchestration for public judging links.
+
 ## Components
 
 - `backend/main.py`: FastAPI API, existing RescueNet endpoints, and local Slack demo endpoints.
@@ -30,6 +32,7 @@ The existing RescueNet AI backend remains the core emergency reasoning engine. S
 - `rescuenet_slack/`: incident extraction, risk scoring, response planning, safety review, audit trail, and orchestration.
 - `mcp_server/`: local MCP-compatible tool facade.
 - `data/`: deterministic demo data for Slack search, weather, shelters, resources, and audit logs.
+- `command_center/`: Streamlit secondary command center for Hugging Face Spaces or Streamlit Community Cloud.
 
 ## Data Flow
 
