@@ -1,33 +1,18 @@
-from typing import Dict, Any
+from typing import Any, Dict
+
+from backend.agents.base_agent import BaseAgent
 
 
-class VolunteerCoordinationAgent:
+class VolunteerCoordinationAgent(BaseAgent):
     name = "Volunteer Coordination Agent"
 
     def run(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        risk = state.get("risk_level", "medium")
-
-        if risk == "high":
-            assignment = {
-                "medical": 12,
-                "rescue": 18,
-                "logistics": 10,
-                "communications": 6,
-                "shelter_support": 8
-            }
-        else:
-            assignment = {
-                "medical": 6,
-                "rescue": 8,
-                "logistics": 5,
-                "communications": 3,
-                "shelter_support": 4
-            }
-
-        state["volunteers"] = assignment
-
-        state.setdefault("agents_used", []).append(self.name)
-        state.setdefault("a2a_trace", []).append(
-            f"{self.name} assigned volunteer squads and handed off to public alert agent"
-        )
-        return state
+        risk = (state.get("risk_level") or "medium").lower()
+        assignment = {
+            "medical": 12 if risk == "high" else 6,
+            "rescue": 18 if risk == "high" else 8,
+            "logistics": 10 if risk == "high" else 5,
+            "communications": 6 if risk == "high" else 3,
+            "shelter_support": 8 if risk == "high" else 4,
+        }
+        return self._record_output(state, "volunteers", assignment, "Assigned volunteer teams to support field operations.", 0.76, "Public Alert Agent")

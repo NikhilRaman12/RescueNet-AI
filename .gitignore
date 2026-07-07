@@ -6,3 +6,4 @@ venv/
 node_modules/
 .DS_Store
 .ipynb_checkpoints/
+data/audit_log.jsonl

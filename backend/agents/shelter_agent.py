@@ -1,38 +1,34 @@
-from typing import Dict, Any
+from typing import Any, Dict
+
+from backend.agents.base_agent import BaseAgent
 
 
-class ShelterCoordinationAgent:
+class ShelterCoordinationAgent(BaseAgent):
     name = "Shelter Coordination Agent"
 
     def run(self, state: Dict[str, Any]) -> Dict[str, Any]:
         location = state.get("location") or "Nearest Safe Zone"
-
-        state["shelters"] = [
+        payload = [
             {
                 "name": "Emergency Relief Camp A",
                 "location": location,
                 "capacity": 250,
                 "available_beds": 120,
-                "priority": "primary"
+                "priority": "primary",
             },
             {
                 "name": "Community Shelter B",
                 "location": location,
                 "capacity": 180,
                 "available_beds": 80,
-                "priority": "secondary"
+                "priority": "secondary",
             },
             {
                 "name": "Medical Stabilization Center",
                 "location": location,
                 "capacity": 75,
                 "available_beds": 30,
-                "priority": "medical"
-            }
+                "priority": "medical",
+            },
         ]
-
-        state.setdefault("agents_used", []).append(self.name)
-        state.setdefault("a2a_trace", []).append(
-            f"{self.name} mapped safe shelters and handed off to route optimization"
-        )
-        return state
+        return self._record_output(state, "shelters", {"shelters": payload}, "Mapped safe shelters and marked their readiness for intake.", 0.79, "Route Optimization Agent")

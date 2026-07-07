@@ -1,0 +1,43 @@
+[
+  {
+    "channel": "field-reports",
+    "user": "U-field-12",
+    "text": "Flood water crossed the old bridge near Village A. Around 70 people are stranded, including elderly residents and children.",
+    "location": "Village A",
+    "hazard_type": "flood",
+    "timestamp": "2026-07-07T09:10:00+05:30"
+  },
+  {
+    "channel": "logistics",
+    "user": "U-logistics-04",
+    "text": "Boat Team 2 is available near Village A with fuel for four trips. Low-lying river road is blocked.",
+    "location": "Village A",
+    "hazard_type": "flood",
+    "timestamp": "2026-07-07T09:13:00+05:30"
+  },
+  {
+    "channel": "shelter-operations",
+    "user": "U-shelter-02",
+    "text": "Shelter C has 140 spaces and separate area for families with children.",
+    "location": "Village A",
+    "hazard_type": "flood",
+    "timestamp": "2026-07-07T09:15:00+05:30"
+  },
+  {
+    "channel": "medical-response",
+    "user": "U-med-07",
+    "text": "Ambulance Unit 4 can stage near the north school road checkpoint.",
+    "location": "Village A",
+    "hazard_type": "flood",
+    "timestamp": "2026-07-07T09:17:00+05:30"
+  },
+  {
+    "channel": "weather-alerts",
+    "user": "U-weather-01",
+    "text": "Rainfall is intensifying upstream. Reassess water level every 30 minutes.",
+    "location": "Village A",
+    "hazard_type": "flood",
+    "timestamp": "2026-07-07T09:19:00+05:30"
+  }
+]
+

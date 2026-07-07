@@ -1,0 +1,9 @@
+[
+  {
+    "location": "Village A",
+    "condition": "heavy rain and rising river level",
+    "risk": "high",
+    "rainfall_mm": 96,
+    "wind_speed_kmph": 42
+  }
+]

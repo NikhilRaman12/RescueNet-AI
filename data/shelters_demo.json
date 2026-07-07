@@ -1,0 +1,19 @@
+[
+  {
+    "name": "Shelter C",
+    "location": "Village A",
+    "serves": "Village A",
+    "capacity": 220,
+    "available_spaces": 140,
+    "status": "open"
+  },
+  {
+    "name": "North School Relief Camp",
+    "location": "Village A North",
+    "serves": "Village A",
+    "capacity": 120,
+    "available_spaces": 64,
+    "status": "open"
+  }
+]
+

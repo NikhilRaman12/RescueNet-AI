@@ -1,0 +1,35 @@
+[
+  {
+    "name": "Boat Team 2",
+    "type": "rescue_boat",
+    "location": "Village A",
+    "serves": "Village A",
+    "status": "available",
+    "distance_km": 3.2
+  },
+  {
+    "name": "Ambulance Unit 4",
+    "type": "ambulance",
+    "location": "North checkpoint",
+    "serves": "Village A",
+    "status": "standby",
+    "distance_km": 7.0
+  },
+  {
+    "name": "Volunteer Team Red",
+    "type": "volunteers",
+    "location": "Relief warehouse",
+    "serves": "Village A",
+    "status": "available",
+    "capacity": 18
+  },
+  {
+    "name": "Water Stock",
+    "type": "water",
+    "location": "Relief warehouse",
+    "serves": "Village A",
+    "status": "low",
+    "capacity": 400
+  }
+]
+

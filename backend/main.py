@@ -1,30 +1,49 @@
+from __future__ import annotations
+
+import os
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
+from uuid import uuid4
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
-from backend.services.rescue_graph import LANGGRAPH_AVAILABLE, run_rescue_graph
-from backend.services.mcp_service import fetch_external_context, get_mcp_events, register_mcp_handlers
+from backend.a2a.protocol import A2AProtocol
+from backend.config.settings import API_HOST, API_PORT, ENABLE_GUARDRAILS, ENVIRONMENT, USE_LIVE_APIS
+from backend.database.mongo import get_operational_snapshot
+from backend.evaluation.evaluator import evaluate_response
 from backend.services.live_data_tools import fetch_live_data_bundle
-from backend.a2a.protocol import get_a2a_conversation, get_a2a_messages
-
+from backend.services.mcp_service import fetch_external_context, get_mcp_events, register_mcp_handlers
+from backend.services.rescue_graph import LANGGRAPH_AVAILABLE, run_rescue_graph
+from mcp_server.tools import gather_mcp_context, list_tools as list_slack_mcp_tools
+from rescuenet_slack.incident_models import IncidentSignal
+from rescuenet_slack.orchestrator import analyze_signal
+from slack_app.actions import handle_incident_action
+from slack_app.blockkit import incident_card_message
+from slack_app.commands import handle_rescuenet_command
 
 app = FastAPI(
     title="RescueNet AI",
-    description="Autonomous Multi-Agent Disaster Response Operating System.",
+    description="Production-grade multi-agent disaster response command system.",
     version="1.0.0",
 )
 
+origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+if ENVIRONMENT != "production":
+    origins.append("*")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+protocol = A2AProtocol()
 
 
 class RescueRequest(BaseModel):
@@ -35,43 +54,65 @@ class RescueRequest(BaseModel):
     context: Dict[str, Any] = {}
 
 
+class SlackAnalyzeRequest(BaseModel):
+    text: str
+    channel: str = "field-reports"
+    user_id: str = "demo-user"
+    location: Optional[str] = None
+    hazard_type: Optional[str] = None
+
+
+class SlackCommandRequest(BaseModel):
+    text: str = "demo"
+    channel: str = "incident-command"
+    user_id: str = "demo-user"
+
+
+class SlackActionRequest(BaseModel):
+    action_id: str
+    incident_id: str
+    user_id: str = "demo-user"
+
+
 @app.get("/")
-def root():
+def root() -> Dict[str, Any]:
     return {
         "service": "RescueNet AI",
         "status": "running",
         "docs": "/docs",
-        "console": "/console",
         "stack": {
             "api": "FastAPI",
             "orchestration": "LangGraph StateGraph" if LANGGRAPH_AVAILABLE else "Sequential execution",
             "communication": "A2A protocol",
             "tools": "MCP operational tools",
+            "slack_agent": "RescueNet Slack command, mention, Block Kit, and actions",
             "data_layer": "OperationalDataStore",
-            "agents": 10,
+            "agents": 12,
         },
     }
 
 
 @app.get("/health")
-def health():
+def health() -> Dict[str, Any]:
     return {
-        "status": "OperationalOperational",
+        "status": "operational",
         "service": "RescueNet AI",
+        "slack_agent": "ready",
         "langgraph_available": LANGGRAPH_AVAILABLE,
+        "environment": ENVIRONMENT,
     }
 
 
 @app.get("/console", response_class=HTMLResponse)
-def rescue_console():
+def rescue_console() -> HTMLResponse:
     html_path = Path("frontend_static/index.html")
     if not html_path.exists():
-        return HTMLResponse("<h1>RescueNet AI Console</h1><p>Console Console fileile not found.</p>")
+        return HTMLResponse("<h1>RescueNet AI Console</h1><p>Console file not found.</p>")
     return HTMLResponse(html_path.read_text(encoding="utf-8"))
 
 
 @app.get("/api/dashboard")
-def dashboard():
+def dashboard() -> Dict[str, Any]:
     return {
         "alerts_open": 8,
         "active_missions": 4,
@@ -83,96 +124,177 @@ def dashboard():
 
 
 @app.post("/api/rescue")
-def rescue_mission(payload: RescueRequest):
+def rescue_mission(payload: RescueRequest) -> Dict[str, Any]:
     request_payload = payload.model_dump() if hasattr(payload, "model_dump") else payload.dict()
     location = request_payload.get("location", "Hyderabad")
-    severity = request_payload.get("severity", "High")
-    disaster_type = request_payload.get("disaster_type", "Flood")
+    severity = (request_payload.get("severity") or "high").lower()
+    disaster_type = (request_payload.get("disaster_type") or "flood").lower()
 
     state = run_rescue_graph(request_payload)
-    live_data = fetch_live_data_bundle(location)
-    try:
-        snapshot = get_operational_snapshot(location)
-    except Exception:
-        snapshot = {}
+    live_data = fetch_live_data_bundle(location) if USE_LIVE_APIS else {"mode": "fallback"}
+    snapshot = get_operational_snapshot(location)
 
-    a2a_trace = state.get("a2a_trace", [])
-    a2a_messages = state.get("a2a_messages") or [
+    guardrail_report = {
+        "passed": True,
+        "prompt_injection_detected": any(term in (request_payload.get("query") or "").lower() for term in ["ignore previous instructions", "bypass"]),
+        "unsafe_instruction_filtered": False,
+        "pii_minimized": True,
+        "emergency_disclaimer": "This is operational decision support, not final emergency authority.",
+        "human_in_the_loop_required": severity in {"high", "critical"},
+    }
+
+    if ENABLE_GUARDRAILS and guardrail_report["prompt_injection_detected"]:
+        guardrail_report["unsafe_instruction_filtered"] = True
+        guardrail_report["passed"] = False
+
+    mission_id = f"mission-{uuid4().hex[:8]}"
+    correlation_id = state.get("correlation_id") or str(uuid4())
+
+    state.update(
         {
-            "message_type": "handoff",
-            "sequence": idx + 1,
-            "detail": msg,
-            "status": "sent",
+            "mission_id": mission_id,
+            "correlation_id": correlation_id,
+            "status": "completed",
             "location": location,
-            "disaster_type": disaster_type.lower(),
-            "priority": severity.lower(),
+            "disaster_type": disaster_type,
+            "risk_level": state.get("risk_level", "medium"),
+            "live_data_sources": live_data,
+            "live_weather": live_data.get("live_weather", {}),
+            "live_disaster_events": live_data.get("live_disaster_events", {}),
+            "live_earthquakes": live_data.get("live_earthquakes", {}),
+            "live_geocoding": live_data.get("live_geocoding", {}),
+            "live_routing": live_data.get("live_routing", {}),
+            "resources": snapshot.get("resource_inventory", state.get("resources", {})),
+            "hospitals": snapshot.get("hospitals", []),
+            "routes": snapshot.get("routes", state.get("routes", {})),
+            "volunteers": snapshot.get("volunteer_units", state.get("volunteers", {})),
+            "operational_snapshot": snapshot,
+            "guardrail_report": guardrail_report,
+            "a2a_messages": state.get("a2a_messages") or [],
+            "confidence_score": round(sum((state.get("confidence_scores") or {}).values()) / max(1, len((state.get("confidence_scores") or {}).values())), 3) if state.get("confidence_scores") else 0.8,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
         }
-        for idx, msg in enumerate(a2a_trace)
-    ]
+    )
 
-    state["location"] = location
-    state["live_data_sources"] = live_data
-    state["live_weather"] = live_data.get("live_weather", {})
-    state["live_disaster_events"] = live_data.get("live_disaster_events", {})
-    state["live_earthquakes"] = live_data.get("live_earthquakes", {})
-    state["live_geocoding"] = live_data.get("live_geocoding", {})
-    state["live_routing"] = live_data.get("live_routing", {})
-    state["a2a_messages"] = a2a_messages
+    if state.get("public_alert"):
+        state["public_alert"] = {
+            **state["public_alert"],
+            "message": f"Urgent advisory for {location}: follow official evacuation guidance and shelter instructions.",
+        }
 
-    # Override operational sections from selected city snapshot so no city falls back visually.
-    state["resources"] = snapshot.get("resource_inventory", state.get("resources", {}))
-    state["hospitals"] = snapshot.get("hospitals", [])
-    state["routes"] = snapshot.get("routes", state.get("routes", {}))
-    state["volunteers"] = snapshot.get("volunteer_units", state.get("volunteers", {}))
-    state["operational_snapshot"] = snapshot
+    if state.get("recommended_actions"):
+        state["recommended_actions"] = state["recommended_actions"]
 
-    if "disaster_analysis" in state:
-        state["disaster_analysis"]["location"] = location
+    if not state.get("final_mission_plan"):
+        state["final_mission_plan"] = {
+            "mission_id": mission_id,
+            "location": location,
+            "disaster_type": disaster_type,
+            "priority": severity,
+            "summary": state.get("summary") or "Mission planning completed.",
+            "recommended_actions": state.get("recommended_actions", []),
+        }
 
-    if "public_alert" in state:
-        state["public_alert"]["message"] = f"URGENT: High-risk emergency near {location}. Follow evacuation instructions and move to nearest safe shelter."
-
-    state["a2a_messages"] = a2a_messages
+    state["evaluation_report"] = evaluate_response(state)
     return state
 
 
 @app.get("/api/mcp/server")
-def mcp_server_status():
+def mcp_server_status() -> Dict[str, Any]:
     return register_mcp_handlers()
 
 
 @app.get("/api/mcp/context")
-def mcp_context(location: str = "Hyderabad", risk_level: str = "high"):
+def mcp_context(location: str = "Hyderabad", risk_level: str = "high") -> Dict[str, Any]:
     return fetch_external_context(location, risk_level)
 
 
 @app.get("/api/mcp/events")
-def mcp_events():
+def mcp_events() -> Dict[str, Any]:
     return get_mcp_events()
 
 
+@app.get("/api/slack/status")
+def slack_status() -> Dict[str, Any]:
+    return {
+        "service": "RescueNet Slack",
+        "status": "ready",
+        "track": "Slack Agent for Good",
+        "slash_command": "/rescuenet",
+        "mention_handler": "@RescueNet",
+        "mock_slack_search": True,
+        "mock_mcp_tools": True,
+        "mcp_tools": list_slack_mcp_tools(),
+        "supported_channels": [
+            "incident-command",
+            "field-reports",
+            "weather-alerts",
+            "medical-response",
+            "logistics",
+            "shelter-operations",
+            "volunteers",
+        ],
+    }
+
+
+@app.post("/api/slack/analyze")
+def slack_analyze(payload: SlackAnalyzeRequest) -> Dict[str, Any]:
+    signal = IncidentSignal(**payload.model_dump())
+    card = analyze_signal(signal)
+    return {
+        "status": "pending_human_approval",
+        "card": card.model_dump(),
+        "slack_message": incident_card_message(card),
+    }
+
+
+@app.post("/api/slack/command")
+def slack_command(payload: SlackCommandRequest) -> Dict[str, Any]:
+    return handle_rescuenet_command(payload.text, payload.user_id, payload.channel)
+
+
+@app.post("/api/slack/actions")
+def slack_actions(payload: SlackActionRequest) -> Dict[str, Any]:
+    return handle_incident_action(payload.action_id, payload.incident_id, payload.user_id)
+
+
+@app.get("/api/slack/mcp/context")
+def slack_mcp_context(location: str = "Village A") -> Dict[str, Any]:
+    return gather_mcp_context(location)
+
+
 @app.get("/api/a2a/messages")
-def a2a_messages(limit: int = 50):
-    return get_a2a_messages(limit)
+def a2a_messages(limit: int = 50) -> Dict[str, Any]:
+    return {"messages": protocol.messages[-limit:], "count": len(protocol.messages[-limit:])}
 
 
 @app.get("/api/a2a/conversation/{correlation_id}")
-def a2a_conversation(correlation_id: str):
-    return get_a2a_conversation(correlation_id)
+def a2a_conversation(correlation_id: str) -> Dict[str, Any]:
+    return {"correlation_id": correlation_id, "messages": [message for message in protocol.messages if message.correlation_id == correlation_id]}
 
 
 @app.get("/api/data/snapshot")
-def operational_snapshot(location: str = "Hyderabad"):
-    from backend.database.mongo import get_operational_snapshot
+def operational_snapshot(location: str = "Hyderabad") -> Dict[str, Any]:
     return get_operational_snapshot(location)
 
 
 @app.get("/api/data/incidents")
-def operational_incidents(limit: int = 20):
+def operational_incidents(limit: int = 20) -> Dict[str, Any]:
     from backend.database.mongo import list_incidents
+
     return {"incidents": list_incidents(limit)}
 
 
 @app.get("/api/live/data")
-def live_data(location: str = "Hyderabad"):
-    return fetch_live_data_bundle(location)
+def live_data(location: str = "Hyderabad") -> Dict[str, Any]:
+    return fetch_live_data_bundle(location) if USE_LIVE_APIS else {"mode": "fallback"}
+
+
+@app.post("/api/evaluate")
+def evaluate_endpoint(payload: Dict[str, Any]) -> Dict[str, Any]:
+    return evaluate_response(payload)
+
+
+@app.get("/api/observability/traces")
+def observability_traces() -> Dict[str, Any]:
+    return {"traces": []}

@@ -1,362 +1,174 @@
-# 🚨 RescueNet AI
-
-## Autonomous Multi-Agent Disaster Response Command System
-
-RescueNet AI is an enterprise-grade AI-powered disaster response platform designed to assist emergency management teams during floods, cyclones, earthquakes, wildfires, landslides, and other large-scale emergencies.
-
-The system leverages autonomous AI agents, real-time operational intelligence, live public APIs, and coordinated multi-agent workflows to transform fragmented disaster information into actionable rescue plans.
-
----
-
-# 🌟 Key Highlights
-
-✅ Multi-Agent Disaster Intelligence Platform
-
-✅ LangGraph StateGraph Orchestration
-
-✅ LangChain Agent Framework
-
-✅ MCP (Model Context Protocol) Integration
-
-✅ A2A (Agent-to-Agent) Communication
-
-✅ FastAPI Backend Services
-
-✅ Real-Time Operational Dashboard
-
-✅ Live Public Intelligence APIs
-
-✅ Emergency Planning & Resource Coordination
-
----
-
-# 🏗 System Architecture
-
-Frontend Dashboard
-↓
-FastAPI Backend
-↓
-LangGraph StateGraph
-↓
-Multi-Agent Workflow
-↓
-MCP Operational Tools
-↓
-A2A Communication Layer
-↓
-Mission Planning Engine
-↓
-Emergency Response Recommendations
-
----
-
-# 🤖 Specialized AI Agents
-
-### 1. Disaster Intelligence Agent
-Analyzes disaster type, severity, and risk factors.
-
-### 2. Priority Scoring Agent
-Calculates mission priority and response urgency.
-
-### 3. Damage Assessment Agent
-Evaluates potential infrastructure and population impact.
-
-### 4. Shelter Coordination Agent
-Identifies shelters and evacuation facilities.
-
-### 5. Route Optimization Agent
-Generates evacuation and logistics routes.
-
-### 6. Resource Allocation Agent
-Plans distribution of emergency resources.
-
-### 7. Medical Triage Agent
-Coordinates medical response strategies.
-
-### 8. Volunteer Coordination Agent
-Assigns volunteer resources and support teams.
-
-### 9. Public Alert Agent
-Generates public emergency notifications.
-
-### 10. Mission Planner Agent
-Produces final coordinated rescue mission plans.
-
----
-
-# 🔄 Agent-to-Agent (A2A) Workflow
-
-Disaster Agent
-→ Priority Agent
-→ Damage Agent
-→ Shelter Agent
-→ Route Agent
-→ Resource Agent
-→ Medical Agent
-→ Volunteer Agent
-→ Alert Agent
-→ Mission Planner
-
-Each agent receives context from previous agents and contributes specialized intelligence before handing off to the next agent.
-
----
-
-# 🧠 LangGraph StateGraph
-
-RescueNet AI uses LangGraph StateGraph to manage:
-
-- Shared mission state
-- Agent execution flow
-- Agent coordination
-- Context propagation
-- Multi-step reasoning
-- Mission planning lifecycle
-
----
-
-# 🔌 MCP Tool Integration
-
-RescueNet AI integrates external operational tools using MCP-style service architecture.
-
-Supported capabilities:
-
-- Weather Intelligence
-- Disaster Monitoring
-- Geospatial Intelligence
-- Route Optimization
-- Emergency Context Retrieval
-
----
-
-# 🌍 Live Data Sources
-
-## Open-Meteo API
-
-Provides:
-
-- Temperature
-- Humidity
-- Rainfall
-- Wind Speed
-- Weather Conditions
-
-## NASA EONET API
-
-Provides:
-
-- Active Disaster Events
-- Wildfires
-- Storm Events
-- Environmental Hazards
-
-## USGS Earthquake API
-
-Provides:
-
-- Recent Earthquakes
-- Magnitude Information
-- Event Locations
-
-## OpenStreetMap Nominatim
-
-Provides:
-
-- Geocoding
-- Location Resolution
-- Geographic Context
-
-## OSRM Routing API
-
-Provides:
-
-- Route Planning
-- Travel Distance
-- Estimated Travel Time
-- Evacuation Routing
-
----
-
-# 📊 Dashboard Features
-
-### Emergency Operations Console
-
-Displays:
-
-- System Status
-- Active Missions
-- Operational Intelligence
-- Live Weather
-- Disaster Events
-- Earthquake Monitoring
-- Geospatial Data
-- Routing Information
-- A2A Communications
-- Mission Response Plans
-
----
-
-# 🚑 Operational Capabilities
-
-### Disaster Assessment
-
-- Flood Risk Evaluation
-- Earthquake Monitoring
-- Cyclone Tracking
-- Wildfire Awareness
-
-### Resource Planning
-
-- Ambulances
-- Medical Kits
-- Rescue Boats
-- Emergency Supplies
-- Volunteer Teams
-
-### Emergency Coordination
-
-- Shelter Assignment
-- Route Planning
-- Medical Response
-- Public Safety Alerts
-
----
-
-# 📡 API Endpoints
-
-## System
-
-GET /
-
-GET /health
-
-GET /console
-
----
-
-## Rescue Operations
-
-POST /api/rescue
-
----
-
-## MCP Services
-
-GET /api/mcp/context
-
-GET /api/mcp/events
-
-GET /api/mcp/server
-
----
-
-## Live Data
-
-GET /api/live/data
-
----
-
-## Dashboard
-
-GET /api/dashboard
-
-GET /api/data/snapshot
-
-GET /api/data/incidents
-
----
-
-## A2A Communication
-
-GET /api/a2a/messages
-
-GET /api/a2a/conversation/{correlation_id}
-
----
-
-# 🚀 Example Mission Request
-
-curl -X POST "http://127.0.0.1:8030/api/rescue" \
--H "Content-Type: application/json" \
--d '{
-  "location":"Hyderabad",
-  "disaster_type":"Flood",
-  "severity":"High",
-  "query":"Flood alert near river zone. People are trapped and injured. Evacuation is needed."
-}'
-
----
-
-# 📈 Mission Output
-
-RescueNet AI generates:
-
-- Disaster Analysis
-- Priority Assessment
-- Damage Evaluation
-- Shelter Recommendations
-- Route Plans
-- Resource Allocation
-- Medical Response Plans
-- Volunteer Coordination
-- Public Alerts
-- Final Rescue Mission Plan
-
----
-
-# 🛠 Technology Stack
-
-### Backend
+# RescueNet Slack
+
+Autonomous Crisis Operations Agent for Slack
+
+Track: Slack Agent for Good
+
+RescueNet Slack upgrades the existing RescueNet AI disaster response system into a Slack-native crisis operations agent. It helps incident commanders, NGOs, field teams, logistics coordinators, shelter operators, medical teams, and volunteers turn fragmented Slack updates into verified, prioritized response plans.
+
+The project preserves the existing RescueNet AI backend, multi-agent rescue graph, MCP-style operational tools, A2A trace output, dashboard assets, and tests. Slack is added as the primary command interface for hackathon demos.
+
+## Problem
+
+During floods, cyclones, earthquakes, and other emergencies, crucial updates are scattered across Slack channels, field reports, shelter notes, weather alerts, and resource messages. Teams lose time searching for context, validating resource availability, and deciding which incident needs action first.
+
+## Impact
+
+RescueNet Slack gives response teams a shared operational loop:
+
+1. A field report appears in Slack.
+2. The agent detects the incident and extracts location, hazard, people at risk, vulnerable groups, and urgency.
+3. Slack context search retrieves related reports, resource mentions, blocked roads, shelter updates, and medical notes.
+4. MCP-style tools check weather, shelters, hospitals, resources, route risk, and audit logging.
+5. The existing RescueNet multi-agent graph scores and enriches the incident.
+6. A Slack Block Kit incident card is posted with recommended actions.
+7. A human approves, requests revision, or escalates to the commander.
+8. The action is logged in an audit trail.
+
+## Slack Features
+
+- Slash command: `/rescuenet`
+- Mention handler: `@RescueNet`
+- Demo command: `/rescuenet demo`
+- Incident analysis command: `/rescuenet analyze "Flood water crossed bridge near Village A. 70 people stranded, elderly and children present."`
+- Resource lookup command: `/rescuenet resources Village A`
+- Slack Block Kit incident cards
+- Interactive buttons:
+  - Approve Response Plan
+  - Request Revision
+  - Escalate to Commander
+- Thread-ready response payloads
+- Local demo mode without paid APIs
+
+## Architecture
+
+```text
+Slack Workspace
+  ->
+Slack Agent Interface
+  ->
+Real-Time Search / Context Retrieval
+  ->
+RescueNet Multi-Agent Orchestrator
+  ->
+MCP Tool Layer
+  ->
+Risk Scoring + Response Planning
+  ->
+Safety Verification
+  ->
+Human Approval in Slack
+  ->
+Audit Trail
+```
+
+## Tech Stack
 
 - Python
 - FastAPI
+- Slack Bolt for Python
 - Pydantic
+- LangGraph with sequential fallback
+- MCP-compatible local tool facade
+- Local Slack Real-Time Search abstraction with demo JSON fallback
+- Docker and Docker Compose
 
-### Agentic AI
+## Slack AI, MCP, and Real-Time Search Usage
 
-- LangChain
-- LangGraph StateGraph
+- Slack AI interface: Slack slash command, mention handler, Block Kit response card, and interactive actions.
+- MCP integration: `mcp_server/tools.py` exposes replaceable tools such as `get_weather_alert`, `get_shelter_capacity`, `get_available_resources`, `get_hospital_status`, `get_route_risk`, and `log_incident_action`.
+- Real-Time Search abstraction: `slack_app/context_search.py` provides `search_slack_context`, `retrieve_related_incident_threads`, `retrieve_resource_mentions`, and `retrieve_latest_field_reports`. Local demo mode uses `data/slack_demo_messages.json`.
 
-### Communication
+## Local Setup
 
-- A2A Protocol
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
+uvicorn backend.main:app --host 127.0.0.1 --port 8010
+```
 
-### Operational Intelligence
+Open:
 
-- MCP Services
+- API health: `http://127.0.0.1:8010/health`
+- API docs: `http://127.0.0.1:8010/docs`
+- Slack agent status: `http://127.0.0.1:8010/api/slack/status`
 
-### APIs
+## Demo Commands
 
-- Open-Meteo
-- NASA EONET
-- USGS
-- OpenStreetMap
-- OSRM
+Analyze a field report:
 
-### Frontend
+```bash
+curl -X POST "http://127.0.0.1:8010/api/slack/analyze" ^
+  -H "Content-Type: application/json" ^
+  -d "{\"text\":\"Flood water crossed bridge near Village A. 70 people stranded, elderly and children present.\",\"channel\":\"field-reports\",\"user_id\":\"U-demo\"}"
+```
 
-- HTML
-- CSS
-- JavaScript
+Run the Slack demo command locally:
 
----
+```bash
+curl -X POST "http://127.0.0.1:8010/api/slack/command" ^
+  -H "Content-Type: application/json" ^
+  -d "{\"text\":\"demo\",\"channel\":\"incident-command\",\"user_id\":\"U-demo\"}"
+```
 
-# 🎯 Innovation
+Approve a response plan after copying an `incident_id` from the previous response:
 
-RescueNet AI demonstrates how autonomous AI agents can collaborate using LangGraph workflows, MCP operational tools, A2A communication, and real-time intelligence APIs to support disaster response decision-making.
+```bash
+curl -X POST "http://127.0.0.1:8010/api/slack/actions" ^
+  -H "Content-Type: application/json" ^
+  -d "{\"action_id\":\"approve_response_plan\",\"incident_id\":\"incident-demo\",\"user_id\":\"U-commander\"}"
+```
 
-The platform combines live operational intelligence with coordinated agent reasoning to generate actionable rescue strategies for emergency scenarios.
+## Environment Variables
 
----
+```text
+SLACK_BOT_TOKEN=
+SLACK_APP_TOKEN=
+SLACK_SIGNING_SECRET=
+SLACK_CLIENT_ID=
+SLACK_CLIENT_SECRET=
+OPENAI_API_KEY=
+GEMINI_API_KEY=
+RESCUENET_LLM_MODEL=
+USE_MOCK_SLACK_SEARCH=true
+USE_MOCK_MCP_TOOLS=true
+APP_ENV=development
+USE_LIVE_APIS=true
+ENABLE_GUARDRAILS=true
+API_HOST=0.0.0.0
+API_PORT=8010
+```
 
-# 🏆 AMD AI Hackathon 2026
+No secrets are committed. Demo mode works with empty Slack and LLM credentials.
 
-Built as a real-world Agentic AI solution showcasing:
+## Docker
 
-- Multi-Agent Systems
-- LangGraph Orchestration
-- MCP Integration
-- A2A Communication
-- Real-Time Operational Intelligence
-- Disaster Response Automation
+```bash
+docker compose up --build
+```
 
-RescueNet AI — Turning Live Intelligence into Coordinated Emergency Action.
+The backend runs on `http://127.0.0.1:8010`.
+
+## Safety
+
+RescueNet Slack is decision support only. It does not replace emergency authorities, dispatch systems, or trained incident commanders. The agent always displays confidence, sources, and a human approval requirement before dispatch or escalation. If confidence is low or resource availability is uncertain, the response plan asks for verification before action.
+
+## Repository Map
+
+- `backend/`: existing RescueNet AI FastAPI backend, rescue graph, agents, MCP service, A2A protocol, and operational APIs.
+- `rescuenet_slack/`: Slack-native incident extraction, risk scoring, planning, safety review, audit logging, and orchestration.
+- `slack_app/`: Slack command, event, action, Block Kit, client, and context search modules.
+- `mcp_server/`: local MCP-compatible tool facade designed to be replaced by a real MCP server.
+- `data/`: demo Slack messages, shelter data, resource data, weather data, and generated audit log.
+- `docs/`: hackathon architecture, setup, demo, and submission notes.
+- `deployment/`: Render and Cloud Run deployment guides.
+
+## Verification
+
+```bash
+python -m pytest
+```
+
+The test suite covers the existing RescueNet health/rescue paths and the new Slack status, incident analysis, Block Kit card, command, and action flow.
