@@ -6,8 +6,8 @@ services:
       - "8010:8010"
     environment:
       API_HOST: 0.0.0.0
-      API_PORT: 8010
-      USE_LIVE_APIS: "true"
+      API_PORT: "8010"
+      USE_LIVE_APIS: "false"
       ENABLE_GUARDRAILS: "true"
       ENVIRONMENT: development
       APP_ENV: development
@@ -16,5 +16,12 @@ services:
       SLACK_BOT_TOKEN: ""
       SLACK_APP_TOKEN: ""
       SLACK_SIGNING_SECRET: ""
+      GEMINI_API_KEY: ""
+      OPENAI_API_KEY: ""
     volumes:
-      - .:/app
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8010/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

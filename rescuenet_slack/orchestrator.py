@@ -10,6 +10,12 @@ from rescuenet_slack.incident_models import IncidentExtraction, IncidentSignal, 
 from rescuenet_slack.response_planner import build_response_plan
 from rescuenet_slack.risk_engine import score_incident
 from rescuenet_slack.safety import review_plan
+from rescuenet_slack.store import (
+    record_audit,
+    save_evidence,
+    save_response_plan,
+    upsert_incident,
+)
 from slack_app.context_search import build_slack_context
 
 
@@ -36,11 +42,15 @@ def extract_incident(signal: IncidentSignal) -> IncidentExtraction:
         location_match = re.search(r"\b(?:near|at|in)\s+([A-Z][A-Za-z0-9\s-]{2,40})", text)
         location = location_match.group(1).strip(" .") if location_match else "reported area"
 
-    numbers = [int(value) for value in re.findall(r"\b\d{1,4}\b", text)]
+    numbers = [int(v) for v in re.findall(r"\b\d{1,4}\b", text)]
     people_affected = max(numbers) if numbers else 0
-    vulnerable_groups = [group for group in ["elderly", "children", "disabled", "pregnant"] if group in lowered]
-    medical_urgency = any(term in lowered for term in ["injured", "medical", "ambulance", "bleeding", "critical"])
-    urgency = "critical" if any(term in lowered for term in ["stranded", "trapped", "urgent", "critical"]) else "high" if people_affected >= 50 else "medium"
+    vulnerable_groups = [g for g in ["elderly", "children", "disabled", "pregnant"] if g in lowered]
+    medical_urgency = any(t in lowered for t in ["injured", "medical", "ambulance", "bleeding", "critical"])
+    urgency = (
+        "critical" if any(t in lowered for t in ["stranded", "trapped", "urgent", "critical"])
+        else "high" if people_affected >= 50
+        else "medium"
+    )
 
     return IncidentExtraction(
         location=location,
@@ -77,17 +87,39 @@ def analyze_signal(signal: IncidentSignal) -> SlackIncidentCard:
     risk = score_incident(incident, merged_context)
     plan = build_response_plan(incident, risk, merged_context)
     safety = review_plan(merged_context, min(risk.confidence, 0.91))
-    audit = [
-        log_incident_action(incident.incident_id, "incident_detected", signal.user_id, {"channel": signal.channel}),
-        mcp_log_action(incident.incident_id, "response_plan_generated"),
-    ]
+    audit_file = log_incident_action(
+        incident.incident_id, "incident_detected", signal.user_id, {"channel": signal.channel}
+    )
+    mcp_log_action(incident.incident_id, "response_plan_generated")
+
+    # Persist to SQLite store
+    upsert_incident({
+        "incident_id": incident.incident_id,
+        "location": incident.location,
+        "hazard_type": incident.hazard_type,
+        "people_affected": incident.people_affected,
+        "vulnerable_groups": incident.vulnerable_groups,
+        "urgency": incident.urgency,
+        "risk_score": risk.score,
+        "risk_level": risk.level,
+        "priority_tier": risk.priority_tier,
+        "approval_status": "pending_human_approval",
+        "source_channel": incident.source_channel,
+        "source_text": incident.source_text,
+        "detected_at": incident.detected_at,
+    })
+    save_response_plan(incident.incident_id, plan.model_dump())
+    save_evidence(incident.incident_id, "slack_context", slack_context)
+    save_evidence(incident.incident_id, "mcp_context", mcp_context)
+    record_audit(incident.incident_id, "incident_detected", signal.user_id, {"channel": signal.channel})
+    record_audit(incident.incident_id, "response_plan_generated", "system", {})
 
     return SlackIncidentCard(
         incident=incident,
         risk=risk,
         plan=plan,
         safety=safety,
-        audit_trail=audit,
+        audit_trail=[audit_file],
     )
 
 

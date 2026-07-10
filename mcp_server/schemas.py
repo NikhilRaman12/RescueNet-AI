@@ -26,3 +26,16 @@ class ShelterCapacity(BaseModel):
     total_capacity: int
     available_spaces: int
 
+
+class WeatherAlert(BaseModel):
+    location: str
+    risk: str
+    condition: str
+    rainfall_mm: float
+    wind_speed_kmph: float
+
+
+class Allocation(BaseModel):
+    location: str
+    resources: List[ResourceItem]
+    food: List[str] = Field(default_factory=list)

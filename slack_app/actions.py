@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict
 
 from rescuenet_slack.audit_log import log_incident_action
+from rescuenet_slack.store import record_approval, record_audit
 
 
 ACTION_LABELS = {
@@ -15,10 +16,11 @@ ACTION_LABELS = {
 def handle_incident_action(action_id: str, incident_id: str, actor: str = "slack-user") -> Dict[str, Any]:
     status = ACTION_LABELS.get(action_id, "recorded")
     audit = log_incident_action(incident_id, status, actor, {"source": "slack_interaction"})
+    record_approval(incident_id, status, actor)
+    record_audit(incident_id, status, actor, {"source": "slack_interaction"})
     return {
         "incident_id": incident_id,
         "status": status,
         "audit": audit,
         "message": f"Incident {incident_id} marked as {status}.",
     }
-

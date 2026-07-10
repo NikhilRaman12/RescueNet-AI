@@ -12,7 +12,8 @@ Set Slack and app environment variables in Cloud Run. Keep demo flags enabled fo
 ```text
 USE_MOCK_SLACK_SEARCH=true
 USE_MOCK_MCP_TOOLS=true
+USE_LIVE_APIS=false
 APP_ENV=production
 ```
 
-Use the Cloud Run URL as the Slack interactivity and slash command request URL.
+Use `https://<cloud-run-service>/slack/events` as the Slack slash command, event, App Home, and interactivity request URL.

@@ -17,9 +17,10 @@ APP_ENV=production
 USE_MOCK_SLACK_SEARCH=true
 USE_MOCK_MCP_TOOLS=true
 ENABLE_GUARDRAILS=true
+USE_LIVE_APIS=false
 SLACK_BOT_TOKEN=
 SLACK_SIGNING_SECRET=
 SLACK_APP_TOKEN=
 ```
 
-Use the deployed Render URL for Slack command and interactivity requests.
+Use `https://<render-service>/slack/events` for Slack command, event, App Home, and interactivity requests.

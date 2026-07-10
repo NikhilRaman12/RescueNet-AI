@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List
 from uuid import uuid4
 
+from backend.config.settings import USE_LIVE_APIS
 from backend.database.mongo import get_database
 from backend.services.live_data_tools import fetch_live_data_bundle
 
@@ -173,7 +174,7 @@ def public_warning_tool(location: str, risk_level: str = "medium") -> Dict[str, 
 def fetch_external_context(location: str = "Hyderabad", risk_level: str = "medium") -> Dict[str, Any]:
     store = get_database()
     return {
-        "live_data_sources": fetch_live_data_bundle(location),
+        "live_data_sources": fetch_live_data_bundle(location) if USE_LIVE_APIS else {"mode": "fallback"},
         "operational_snapshot": store.get_operational_snapshot(location),
         "weather": weather_alert_tool(location),
         "disaster_warning": disaster_warning_tool(location),

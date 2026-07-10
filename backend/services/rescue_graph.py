@@ -11,6 +11,7 @@ from backend.agents.resource_agent import ResourceAgent
 from backend.agents.route_agent import RouteOptimizationAgent
 from backend.agents.shelter_agent import ShelterCoordinationAgent
 from backend.agents.volunteer_agent import VolunteerCoordinationAgent
+from backend.config.settings import USE_LIVE_APIS
 from backend.services.live_data_tools import fetch_live_data_bundle
 
 try:
@@ -165,7 +166,7 @@ def mission_node(state: RescueState) -> RescueState:
 
 def initial_state(payload: Dict[str, Any]) -> RescueState:
     location = payload.get("location", "Hyderabad")
-    live_data = fetch_live_data_bundle(location)
+    live_data = fetch_live_data_bundle(location) if USE_LIVE_APIS else {"mode": "fallback"}
     return {
         "location": location,
         "disaster_type": (payload.get("disaster_type") or "flood").lower(),

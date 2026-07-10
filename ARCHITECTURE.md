@@ -45,4 +45,4 @@ Slack is the primary UX. The Streamlit Command Center is a secondary deployed de
 7. `rescuenet_slack.response_planner` creates recommended actions.
 8. `rescuenet_slack.safety` adds confidence, source, and human approval controls.
 9. `slack_app.blockkit` renders the incident card.
-10. Button actions write to `data/audit_log.jsonl`.
+10. Button actions write to SQLite approvals/audit tables and `data/audit_log.jsonl`.

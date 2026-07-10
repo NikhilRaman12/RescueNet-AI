@@ -8,6 +8,19 @@ from pydantic import BaseModel, Field
 
 
 ApprovalStatus = Literal["pending_human_approval", "approved", "revision_requested", "escalated"]
+PriorityTier = Literal["LOW", "MODERATE", "HIGH", "SEVERE", "CRITICAL"]
+
+
+def _priority_tier(score: int) -> PriorityTier:
+    if score >= 85:
+        return "CRITICAL"
+    if score >= 70:
+        return "SEVERE"
+    if score >= 50:
+        return "HIGH"
+    if score >= 30:
+        return "MODERATE"
+    return "LOW"
 
 
 class IncidentSignal(BaseModel):
@@ -42,8 +55,10 @@ class ContextBundle(BaseModel):
 class RiskAssessment(BaseModel):
     score: int
     level: str
+    priority_tier: PriorityTier = "MODERATE"
     confidence: float
     factors: List[str]
+    scoring_breakdown: Dict[str, int] = Field(default_factory=dict)
 
 
 class ResponsePlan(BaseModel):
@@ -58,7 +73,9 @@ class SafetyReview(BaseModel):
     confidence: float
     data_sources: List[str]
     unsupported_claims: List[str] = Field(default_factory=list)
-    decision_support_notice: str = "Decision support only. Human responders and emergency authorities retain final control."
+    decision_support_notice: str = (
+        "Decision support only. Human responders and emergency authorities retain final control."
+    )
 
 
 class SlackIncidentCard(BaseModel):
@@ -68,4 +85,3 @@ class SlackIncidentCard(BaseModel):
     safety: SafetyReview
     approval_status: ApprovalStatus = "pending_human_approval"
     audit_trail: List[Dict[str, Any]] = Field(default_factory=list)
-

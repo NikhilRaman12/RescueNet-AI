@@ -17,6 +17,7 @@ USE_MOCK_SLACK_SEARCH=true
 USE_MOCK_MCP_TOOLS=true
 APP_ENV=production
 ENABLE_GUARDRAILS=true
+USE_LIVE_APIS=false
 ```
 
 Slack and LLM keys are optional for the demo. Do not commit secrets to the repo.
