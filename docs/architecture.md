@@ -2,7 +2,7 @@
 
 ## Overview
 
-RescueNet Slack keeps the existing RescueNet AI backend and wraps it with a Slack-native interface. Slack is the primary UX. The Streamlit Command Center is a secondary deployed demo surface.
+RescueNet Slack keeps the existing RescueNet AI backend and wraps it with a Slack-native interface. Slack is the primary disaster-coordination UX and the main submission surface. The Streamlit Command Center is a transparent operational view over the same incident store, evidence, approvals, and audit trail.
 
 ## High-Level Flow
 
@@ -135,7 +135,7 @@ mcp_server/
   schemas.py               Pydantic schemas for tool outputs
 
 command_center/
-  streamlit_app.py         Streamlit dashboard (5 tabs)
+  streamlit_app.py         Streamlit operational command center (5 tabs)
 
 data/
   slack_demo_messages.json Demo Slack messages for context search

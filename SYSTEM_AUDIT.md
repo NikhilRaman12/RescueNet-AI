@@ -8,7 +8,7 @@ Date: 2026-07-10
 - Slack app surfaces: slash commands, App Home, app mentions, actions, Incident Report modal, Block Kit, evidence modal, `/slack/events`.
 - Orchestration: incident extraction, context search, MCP context, legacy RescueNet graph, risk scoring, response planning, safety review.
 - Persistence: SQLite incident store, evidence, response plans, approvals, audit events.
-- Secondary UI: Streamlit command center.
+- Transparent operations UI: Streamlit command center.
 - Tests: pytest suite, compile checks, targeted Slack tests.
 - Deployment: Dockerfile, Docker Compose, Render, Cloud Run, Streamlit Cloud, Hugging Face Spaces docs.
 - Submission artifacts: README, architecture, Slack setup, demo script, MCP/RTS docs, Devpost copy, checklist.
@@ -34,7 +34,7 @@ Date: 2026-07-10
 | Slack RTS/context search | Functional demo adapter labeled `mock_rts_search`; not claimed live. |
 | MCP tools | Functional local MCP-compatible facade; not claimed as external live MCP server. |
 | Live public data APIs | Optional opt-in via `USE_LIVE_APIS=true`; default is deterministic fallback. |
-| Streamlit | Secondary command center reading the same SQLite store in a single runtime. |
+| Streamlit | Transparent operational command center reading the same SQLite store in a single runtime. |
 
 ## Remaining Manual Work
 

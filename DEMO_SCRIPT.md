@@ -61,4 +61,4 @@ RescueNet Slack does not replace emergency authorities. It gives commanders fast
 
 ## Secondary Public Link
 
-If judges need a public deployed link, open the Streamlit Command Center. It is a secondary demo surface for Hugging Face Spaces or Streamlit Community Cloud. The primary product experience remains the Slack app.
+If judges need a public deployed link, open the Streamlit Command Center as the transparent operational view. The primary product experience and submission story remain the Slack-native disaster-coordination agent.

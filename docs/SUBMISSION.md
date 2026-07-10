@@ -22,7 +22,7 @@ Slack Agent for Good
 
 ## Brief Description
 
-RescueNet Slack helps NGOs, field volunteers, and incident commanders coordinate disaster response from Slack. A field report can be submitted through `/rescuenet demo`, `/rescuenet analyze <text>`, or an `@RescueNet` mention. The agent extracts incident details, retrieves Slack context, gathers MCP evidence, scores risk deterministically, generates a response plan, verifies safety constraints, and posts a Block Kit incident card that requires human approval before any operational plan is marked approved.
+RescueNet Slack is submitted as a Slack-native disaster-coordination agent, not as a Streamlit disaster dashboard. NGOs, field volunteers, and incident commanders coordinate response from Slack through `/rescuenet demo`, `/rescuenet analyze <text>`, the Report Incident modal, or an `@RescueNet` mention. The agent extracts incident details, retrieves Slack context, gathers MCP evidence, scores risk deterministically, generates a response plan, verifies safety constraints, and posts a Block Kit incident card that requires human approval before any operational plan is marked approved.
 
 ## Impact Statement
 
@@ -47,7 +47,7 @@ Critical incident reports, shelter capacity notes, weather alerts, resource avai
 - Posts a Block Kit incident card with evidence, confidence, resources, and five actions.
 - Requires a human to Approve, Request Revision, or Escalate.
 - Persists incidents, evidence, plans, approvals, and audit events in shared SQLite storage.
-- Shows the same incident store in a secondary Streamlit Command Center.
+- Shows the same incident store in a transparent Streamlit operational command center.
 
 ## How We Built It
 
@@ -57,7 +57,7 @@ The existing RescueNet AI backend was preserved and wrapped with Slack-native mo
 - `slack_app/`: Slack Bolt app, slash command routing, App Home, app mention handling, actions, Block Kit, and context search abstraction.
 - `rescuenet_slack/`: incident extraction, deterministic risk engine, response planning, safety review, SQLite store, and audit logging.
 - `mcp_server/`: MCP-compatible local tool facade and standalone FastAPI MCP smoke endpoint.
-- `command_center/`: Streamlit secondary command center reading the same SQLite incident store.
+- `command_center/`: Streamlit operational command center reading the same SQLite incident store for transparency.
 
 ## Slack Technology Usage
 
@@ -106,13 +106,13 @@ The adapter reads `data/slack_demo_messages.json` and returns related incident t
 | MCP tools | Local demo facade | Functional local tool layer, upgrade path documented |
 | Deterministic risk engine | Implemented | Seven-factor score, no hidden LLM scoring |
 | SQLite incident store | Implemented | Shared by Slack and Streamlit |
-| Streamlit command center | Implemented | Secondary demo surface |
+| Streamlit command center | Implemented | Transparent operational view; Slack remains the primary UX |
 | LLM reasoning | Optional | Demo works without API keys |
 | Live public APIs | Optional opt-in | `USE_LIVE_APIS=false` by default for deterministic judging |
 
 ## Challenges
 
-- Keeping Slack as the primary UX while preserving the existing RescueNet backend.
+- Keeping Slack as the primary disaster-coordination UX while preserving the existing RescueNet backend.
 - Making demo mode deterministic and fast without overstating live external integrations.
 - Ensuring risk scoring is auditable rather than hidden behind an LLM.
 - Sharing state cleanly between Slack actions and the Streamlit command center.

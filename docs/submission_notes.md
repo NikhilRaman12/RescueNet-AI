@@ -17,14 +17,14 @@ Slack Agent for Good
 - MCP-compatible local tool facade.
 - Slack Real-Time Search abstraction with local demo fallback data.
 - Existing RescueNet rescue graph remains integrated.
-- Secondary Streamlit Command Center for public demo links.
+- Transparent Streamlit operational command center for public demo links.
 - Hugging Face Spaces and Streamlit Community Cloud deployment guides.
 - Docker and local FastAPI demo endpoints are documented.
 
 ## UX and Deployment
 
 - Primary UX: Slack App / Slack Agent.
-- Secondary deployed link: Streamlit Command Center.
+- Transparent operational view: Streamlit Command Center.
 - Preferred deployment: Hugging Face Spaces or Streamlit Community Cloud.
 
 ## Safety

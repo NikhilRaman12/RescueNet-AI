@@ -239,13 +239,13 @@ Slack Workspace
   -> Human approval: Approve / Request Revision / Escalate to Commander
   -> Audit trail written to SQLite + data/audit_log.jsonl
     """, language="text")
-    st.caption("Slack is the primary UX. This Streamlit dashboard is the secondary deployed demo surface.")
+    st.caption("Slack is the primary disaster-coordination UX. This Streamlit view is the transparent operational command center.")
 
 
 def render_app() -> None:
     st.set_page_config(page_title="RescueNet Slack Command Center", page_icon="🚨", layout="wide")
     st.title("🚨 RescueNet Slack — Command Center")
-    st.caption("Secondary deployed demo | Track: Slack Agent for Good | Primary UX: Slack App")
+    st.caption("Transparent operational command center | Track: Slack Agent for Good | Primary UX: Slack App")
 
     with st.sidebar:
         st.header("Demo Controls")

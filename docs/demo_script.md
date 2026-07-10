@@ -92,7 +92,7 @@ curl http://127.0.0.1:8010/api/slack/mcp/context?location=Village+A
 streamlit run streamlit_app.py
 ```
 
-> "The Streamlit Command Center is a secondary deployed demo surface for judges. It reads from the same SQLite store as the Slack app. Tabs: Incidents, Analyze, Audit Trail, Integrations, Architecture."
+> "This is not a separate disaster dashboard. The Streamlit Command Center is a transparent operations view over the same incident store used by the Slack agent, showing incidents, evidence, approvals, and audit trail for judges."
 
 Show the Incidents tab with the Village A incident, risk score, and approval status.
 

@@ -19,7 +19,7 @@ Generated during final QA on 2026-07-10.
 | Safety verification | PASS | Safety review includes human approval gate and decision-support notice. |
 | Mandatory human approval | PASS | Incidents start `pending_human_approval`; approval status changes only via actions. |
 | Shared incident store | PASS | SQLite store shared by Slack flow and Streamlit command center. |
-| Streamlit dashboard | PASS | `streamlit_app.py` imports and launches the command center. |
+| Streamlit operational command center | PASS | `streamlit_app.py` launches a transparent operations view; Slack remains the primary submission UX. |
 | Tests | PASS | `python -m pytest -q` passes locally. |
 | Docker build | PASS | `docker build -t rescuenet-slack:qa .` passes locally. |
 | Backend deployment readiness | PASS | Dockerfile, health endpoint, `/slack/events`, and deployment docs are present. Public deployment still manual. |
