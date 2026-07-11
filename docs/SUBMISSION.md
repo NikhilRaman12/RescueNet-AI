@@ -14,7 +14,7 @@ Slack Agent for Good
 
 ## Public Links
 
-- Public GitHub URL: `[add public GitHub repository URL]`
+- Public GitHub URL: `https://github.com/NikhilRaman12/RescueNet-AI`
 - Slack developer sandbox URL: `[add Slack sandbox invite or workspace URL after owner grants access]`
 - Slack backend URL: `[add deployed backend URL]`
 - Streamlit deployed URL: `[add Streamlit Community Cloud or Hugging Face Spaces URL]`

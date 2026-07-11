@@ -41,7 +41,7 @@ Show the output — point out:
 - **Incident detected**: location, hazard, people at risk, vulnerable groups
 - **Slack context searched**: 5 related messages found across channels
 - **MCP tools called**: weather (high risk, 96mm rainfall), shelter (204 spaces available), route (bridge road blocked)
-- **Risk score: 79/100 — SEVERE priority**
+- **Risk score: 74/100 — SEVERE priority** (deterministic; may vary slightly with context)
 - **Response plan generated**: 4 recommended actions
 - **Human approval required** — card is pending
 

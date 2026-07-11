@@ -130,3 +130,32 @@ ngrok http 8010
 ```
 
 Use the HTTPS URL as the Request URL in Slack app settings.
+
+## 12. Judge Sandbox Access (Manual — Project Owner)
+
+After the Slack app is installed in your developer sandbox workspace, invite the hackathon judges:
+
+1. Open your Slack workspace settings → **Invite people**.
+2. Add these email addresses:
+   - `slackhack@salesforce.com`
+   - `testing@devpost.com`
+3. Ensure judges can access the channels used in the demo (`#incident-command`, `#field-reports`, etc.) or post demo output to a public channel.
+4. Share the workspace invite link in your Devpost submission under **Slack developer sandbox URL**.
+
+> **Note:** Judge access must be granted manually by the project owner. Do not claim access has been granted until invites are sent and accepted.
+
+## 13. Final Sandbox Judging Checklist
+
+1. Deploy the FastAPI backend and confirm `GET /health` returns `status: operational`.
+2. Point Slack Request URLs to `https://<backend-host>/slack/events` for slash commands, Event Subscriptions, Interactivity, and App Home.
+3. Set `SLACK_BOT_TOKEN`, `SLACK_SIGNING_SECRET`, and optional `SLACK_APP_TOKEN` (Socket Mode only).
+4. Set `USE_MOCK_SLACK_SEARCH=true` and `USE_MOCK_MCP_TOOLS=true` for deterministic judging.
+5. Install the Slack app to the developer sandbox workspace.
+6. Run `/rescuenet help`, `/rescuenet demo`, `/rescuenet status`, and `/rescuenet incidents`.
+7. Test `@RescueNet` mention with a field report.
+8. Open the **Report Incident** global shortcut modal and submit a report.
+9. Click **View Evidence**, **Refresh Context**, **Approve Response Plan**, **Request Revision**, and **Escalate to Commander**.
+10. Deploy Streamlit from `streamlit_app.py` and verify it reads incidents from the same SQLite store in that runtime.
+11. Invite `slackhack@salesforce.com` and `testing@devpost.com`.
+12. Record the 3-minute demo using `docs/demo_script.md`.
+13. Add public GitHub, Slack sandbox, backend, Streamlit, and demo video URLs to Devpost.

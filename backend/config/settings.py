@@ -7,7 +7,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(_ROOT / ".env")
+load_dotenv(_ROOT / "backend" / ".env")
 
 
 def _env(name: str, default: str = "") -> str:

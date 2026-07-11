@@ -216,7 +216,7 @@ See `docs/RTS_INTEGRATION.md` for full upgrade instructions.
 | LangGraph multi-agent graph | ✅ Live | 10 agents, sequential fallback |
 | Streamlit command center | ✅ Live | 5 tabs, same SQLite store |
 | Docker / Docker Compose | ✅ Live | Single `docker compose up --build` |
-| Test suite | ✅ 48/48 passing | Risk scoring, store, commands, modal, Block Kit, MCP, RTS, Slack route readiness |
+| Test suite | ✅ 80/80 passing | Risk scoring, store, commands, modal, Block Kit, MCP, RTS, LangGraph, Slack route readiness |
 
 ---
 
@@ -371,7 +371,7 @@ No secrets are committed. Demo mode works with all values empty.
 
 ```bash
 python -m pytest
-# 48 tests, all passing
+# 80 tests, all passing
 ```
 
 Covers: priority tiers, risk scoring (all 7 factors), all 7 slash commands, incident modal, Block Kit card structure (all 5 buttons), human approval workflow, store persistence, MCP tools, context search adapter, audit trail, dashboard endpoint.
@@ -390,7 +390,7 @@ data/                 Demo Slack messages, shelters, resources, weather, SQLite 
 docs/                 architecture, slack_setup, MCP_INTEGRATION, RTS_INTEGRATION,
                       demo_script, SUBMISSION, JUDGING_ALIGNMENT
 deployment/           Render, Cloud Run, Hugging Face Spaces, Streamlit Cloud guides
-tests/                48 tests - all passing
+tests/                80 tests - all passing
 ```
 
 ---

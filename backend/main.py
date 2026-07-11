@@ -170,15 +170,17 @@ def dashboard() -> Dict[str, Any]:
     incidents = store_list_incidents(50)
     critical = [i for i in incidents if i.get("priority_tier") in {"CRITICAL", "SEVERE"}]
     pending = [i for i in incidents if i.get("approval_status") == "pending_human_approval"]
+    approved = [i for i in incidents if i.get("approval_status") == "approved"]
+    snapshot = get_operational_snapshot("Hyderabad")
     return {
         "total_incidents": len(incidents),
         "critical_incidents": len(critical),
         "pending_approvals": len(pending),
-        "alerts_open": 8,
-        "active_missions": 4,
-        "shelters_available": 12,
-        "volunteers_assigned": 46,
-        "resource_shortages": {"medical_kits": 20, "water_liters": 500},
+        "approved_incidents": len(approved),
+        "active_missions": len(approved),
+        "shelters_available": len(snapshot.get("shelters", [])),
+        "volunteers_assigned": len(snapshot.get("volunteer_units", [])),
+        "resource_shortages": snapshot.get("resource_inventory", {}),
     }
 
 
