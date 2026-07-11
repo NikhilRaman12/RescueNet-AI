@@ -7,6 +7,15 @@ from rescuenet_slack.incident_models import SafetyReview
 
 def review_plan(context: Dict[str, Any], confidence: float) -> SafetyReview:
     sources: List[str] = ["slack_context_search", "rescuenet_multi_agent_graph", "mcp_tool_layer"]
+    
+    # Dynamically extract live or fallback data source identifiers
+    for key in ["weather_alert", "shelter_capacity", "available_resources", "hospital_status", "route_risk"]:
+        sub_obj = context.get(key)
+        if isinstance(sub_obj, dict) and sub_obj.get("source"):
+            src = sub_obj["source"]
+            if src not in sources:
+                sources.append(src)
+                
     unsupported_claims: List[str] = []
 
     if not context.get("available_resources"):

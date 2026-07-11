@@ -37,7 +37,7 @@ def live_weather_tool(location: str) -> Dict[str, Any]:
     )
 
     try:
-        r = requests.get(url, timeout=10)
+        r = requests.get(url, timeout=3)
         r.raise_for_status()
         current = r.json().get("current", {})
 
@@ -68,7 +68,7 @@ def live_weather_tool(location: str) -> Dict[str, Any]:
 def live_disaster_events_tool(location: str) -> Dict[str, Any]:
     try:
         url = "https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=10"
-        r = requests.get(url, timeout=10)
+        r = requests.get(url, timeout=3)
         r.raise_for_status()
         events = r.json().get("events", [])
 
@@ -103,7 +103,7 @@ def live_disaster_events_tool(location: str) -> Dict[str, Any]:
 def live_earthquake_tool(location: str) -> Dict[str, Any]:
     try:
         url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_day.geojson"
-        r = requests.get(url, timeout=10)
+        r = requests.get(url, timeout=3)
         r.raise_for_status()
         features = r.json().get("features", [])
 
@@ -144,7 +144,7 @@ def live_geocode_tool(location: str) -> Dict[str, Any]:
         params = {"q": f"{location}, India", "format": "json", "limit": 1}
         headers = {"User-Agent": "RescueNetAI-Hackathon/1.0"}
 
-        r = requests.get(url, params=params, headers=headers, timeout=10)
+        r = requests.get(url, params=params, headers=headers, timeout=3)
         r.raise_for_status()
         data = r.json()
 
@@ -198,7 +198,7 @@ def live_routing_tool(location: str) -> Dict[str, Any]:
             "?overview=false&alternatives=true&steps=false"
         )
 
-        r = requests.get(url, timeout=10)
+        r = requests.get(url, timeout=3)
         r.raise_for_status()
         data = r.json()
         routes = data.get("routes", [])

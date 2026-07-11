@@ -213,9 +213,9 @@ def test_blockkit_has_all_five_buttons():
     action_block = next(b for b in blocks if b["type"] == "actions")
     action_ids = [e["action_id"] for e in action_block["elements"]]
     assert "approve_response_plan" in action_ids
-    assert "request_revision" in action_ids
+    assert "reject_response_plan" in action_ids
     assert "escalate_to_commander" in action_ids
-    assert "view_evidence" in action_ids
+    assert "view_sources" in action_ids
     assert "refresh_context" in action_ids
 
 
@@ -268,11 +268,11 @@ def test_full_approval_workflow():
     assert detail["incident"]["approval_status"] == "approved"
 
 
-def test_revision_workflow():
+def test_reject_workflow():
     cmd_resp = client.post("/api/slack/command", json={"text": "demo", "channel": "incident-command", "user_id": "U-demo"})
     incident_id = cmd_resp.json()["card"]["incident"]["incident_id"]
-    resp = client.post("/api/slack/actions", json={"action_id": "request_revision", "incident_id": incident_id, "user_id": "U-commander"})
-    assert resp.json()["status"] == "revision_requested"
+    resp = client.post("/api/slack/actions", json={"action_id": "reject_response_plan", "incident_id": incident_id, "user_id": "U-commander"})
+    assert resp.json()["status"] == "rejected"
 
 
 def test_escalation_workflow():
