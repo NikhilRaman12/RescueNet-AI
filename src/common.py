@@ -24,3 +24,24 @@ class AllocationItem(BaseModel):
     quantity: int
     assigned_to: str
     notes: Optional[str] = None
+
+class ShelterCapcity(BaseModel):
+    shelter: str
+    capacity: int
+    occupied: int
+
+class ResourceSummary(BaseModel):
+    resource: str
+    quantity: int
+    allocated: int
+    available: int
+
+class ResourceAllocation(BaseModel):
+    houses_vacated: int 
+    ambulances_dispatched: int 
+    medical_team_deployment: int 
+    food_packs: int
+    water_crates: int
+    shelters_activated: int
+    heavy_rescue_teams: int
+    

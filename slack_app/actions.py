@@ -8,7 +8,7 @@ from rescuenet_slack.store import record_approval, record_audit
 
 ACTION_LABELS = {
     "approve_response_plan": "approved",
-    "request_revision": "revision_requested",
+    "reject_response_plan": "rejected",
     "escalate_to_commander": "escalated",
 }
 

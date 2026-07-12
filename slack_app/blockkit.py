@@ -80,21 +80,21 @@ def incident_card_blocks(card: SlackIncidentCard) -> List[Dict[str, Any]]:
                 },
                 {
                     "type": "button",
-                    "text": {"type": "plain_text", "text": "✏️ Request Revision"},
-                    "action_id": "request_revision",
+                    "text": {"type": "plain_text", "text": "❌ Reject Response Plan"},
+                    "style": "danger",
+                    "action_id": "reject_response_plan",
                     "value": incident.incident_id,
                 },
                 {
                     "type": "button",
                     "text": {"type": "plain_text", "text": "🚨 Escalate to Commander"},
-                    "style": "danger",
                     "action_id": "escalate_to_commander",
                     "value": incident.incident_id,
                 },
                 {
                     "type": "button",
-                    "text": {"type": "plain_text", "text": "🔍 View Evidence"},
-                    "action_id": "view_evidence",
+                    "text": {"type": "plain_text", "text": "🔍 View Sources"},
+                    "action_id": "view_sources",
                     "value": incident.incident_id,
                 },
                 {

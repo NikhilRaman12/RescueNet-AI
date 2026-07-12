@@ -261,7 +261,7 @@ def create_bolt_app() -> Any:
 
     # ── Approval buttons ──────────────────────────────────────────────────────
     @bolt_app.action("approve_response_plan")
-    @bolt_app.action("request_revision")
+    @bolt_app.action("reject_response_plan")
     @bolt_app.action("escalate_to_commander")
     def incident_action(ack, body, client, respond):
         ack()
@@ -281,7 +281,7 @@ def create_bolt_app() -> Any:
         respond({"response_type": "in_channel", "text": result["message"]})
 
     # ── View Evidence modal ───────────────────────────────────────────────────
-    @bolt_app.action("view_evidence")
+    @bolt_app.action("view_sources")
     def view_evidence_action(ack, body, client):
         ack()
         incident_id = body["actions"][0]["value"]
@@ -305,7 +305,7 @@ def create_bolt_app() -> Any:
             trigger_id=body["trigger_id"],
             view={
                 "type": "modal",
-                "title": {"type": "plain_text", "text": "Incident Evidence"},
+                "title": {"type": "plain_text", "text": "Incident Sources"},
                 "close": {"type": "plain_text", "text": "Close"},
                 "blocks": [
                     {

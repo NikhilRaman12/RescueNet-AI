@@ -66,6 +66,7 @@ def _sidebar(pending: int) -> str:
     return st.session_state["page"]
 
 
+# ── MAIN APPLICATION RUNNER ───────────────────────────────────────────────────
 def render_app() -> None:
     incidents = list_incidents(100)
     pending = sum(1 for i in incidents if i.get("approval_status") == "pending_human_approval")

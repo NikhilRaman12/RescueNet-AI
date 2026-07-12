@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
-from backend.a2a.protocol import A2AProtocol
+from backend.a2a.protocol import a2a_protocol as protocol
 from backend.config.settings import API_HOST, API_PORT, ENABLE_GUARDRAILS, ENVIRONMENT, USE_LIVE_APIS
 from backend.database.mongo import get_operational_snapshot
 from backend.evaluation.evaluator import evaluate_response
@@ -52,7 +52,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-protocol = A2AProtocol()
+# Use global a2a_protocol singleton imported above
 _slack_request_handler = None
 
 

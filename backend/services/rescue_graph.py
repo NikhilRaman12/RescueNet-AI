@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, TypedDict
 
-from backend.a2a.protocol import A2AProtocol
+from backend.a2a.protocol import a2a_protocol as protocol
 from backend.agents.alert_agent import AlertAgent
 from backend.agents.damage_agent import DamageAssessmentAgent
 from backend.agents.disaster_agent import DisasterIntelligenceAgent
@@ -91,7 +91,7 @@ class RescueState(TypedDict, total=False):
 
 # ── Singleton agents ──────────────────────────────────────────────────────────
 
-protocol = A2AProtocol()
+# Use global a2a_protocol singleton imported above
 _disaster = DisasterIntelligenceAgent()
 _priority = PriorityScoringAgent()
 _damage = DamageAssessmentAgent()

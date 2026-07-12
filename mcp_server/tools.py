@@ -16,7 +16,7 @@ from typing import Any, Dict, List
 import requests
 
 DATA_DIR = Path("data")
-_USE_LIVE = os.getenv("USE_LIVE_APIS", "false").lower() == "true"
+_USE_LIVE = os.getenv("USE_LIVE_APIS", "true").lower() == "true"
 
 # ── City coordinate table for live API calls ──────────────────────────────────
 _COORDS: Dict[str, tuple] = {
@@ -63,7 +63,7 @@ def get_weather_alert(location: str) -> Dict[str, Any]:
                 "&current=temperature_2m,precipitation,rain,wind_speed_10m"
                 "&daily=precipitation_sum&forecast_days=1&timezone=auto"
             )
-            r = requests.get(url, timeout=8)
+            r = requests.get(url, timeout=3)
             r.raise_for_status()
             cur = r.json().get("current", {})
             rain = float(cur.get("rain") or cur.get("precipitation") or 0)
@@ -178,7 +178,7 @@ def get_route_risk(location: str) -> Dict[str, Any]:
                 f"{lon},{lat};{lon+0.05},{lat+0.05}"
                 "?overview=false"
             )
-            r = requests.get(url, timeout=8)
+            r = requests.get(url, timeout=3)
             r.raise_for_status()
             routes = r.json().get("routes", [])
             if routes:

@@ -36,7 +36,7 @@ class Settings:
 
     backend_url: str = _env("BACKEND_URL", "http://localhost:8000")
 
-    use_live_apis: bool = _env("USE_LIVE_APIS", "false").lower() == "true"
+    use_live_apis: bool = _env("USE_LIVE_APIS", "true").lower() == "true"
     enable_guardrails: bool = _env("ENABLE_GUARDRAILS", "true").lower() == "true"
     environment: str = _env("ENVIRONMENT", "development")
 

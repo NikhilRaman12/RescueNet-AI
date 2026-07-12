@@ -1,3 +1,4 @@
+from mcp import FastMCP
 """Compatibility exports for MCP helpers.
 
 The MCP implementation lives in ``backend.services.mcp_service``. This module is

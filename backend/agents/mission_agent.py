@@ -41,6 +41,39 @@ class MissionPlannerAgent(BaseAgent):
             "summary": f"RescueNet AI assessed a {risk} risk {disaster_type} event near {location} and generated a coordinated multi-agent rescue response plan.",
             "recommended_actions": actions,
         }
+
+        # Integrate LangChain/Gemini reasoning where appropriate
+        lc_summary = None
+        try:
+            from backend.services.langchain_reasoner import generate_langchain_decision_summary
+            # Create a combined temporary state for generating the LangChain prompt template
+            temp_state = dict(state)
+            temp_state.update({
+                "location": location,
+                "disaster_type": disaster_type,
+                "severity": state.get("severity") or risk,
+                "risk_level": risk,
+                "resources": state.get("resources", {}),
+                "routes": state.get("routes", {}),
+                "hospitals": state.get("hospitals", []),
+            })
+            lc_summary = generate_langchain_decision_summary(temp_state)
+        except Exception:
+            pass
+
+        summary_text = lc_summary or mission_plan["summary"]
+
+        try:
+            from backend.services.gemini_reasoner import GeminiReasoner
+            reasoner = GeminiReasoner()
+            if reasoner.enabled:
+                gemini_res = reasoner.reason("Generate a concise operational decision summary and recommendations based on the LangChain context.", state)
+                if gemini_res.get("summary"):
+                    summary_text = gemini_res["summary"]
+        except Exception:
+            pass
+
+        mission_plan["summary"] = summary_text
         state["recommended_actions"] = actions
-        state["summary"] = mission_plan["summary"]
+        state["summary"] = summary_text
         return self._record_output(state, "final_mission_plan", mission_plan, "Assembled the final mission plan with prioritized operational actions and a clear safety disclaimer.", 0.87, None)
