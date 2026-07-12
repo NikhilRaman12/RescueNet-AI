@@ -9,3 +9,4 @@ node_modules/
 data/audit_log.jsonl
 data/rescuenet.db
 .vscode/
+.streamlit/secrets.toml
