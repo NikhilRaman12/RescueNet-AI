@@ -152,7 +152,7 @@ Pytest configures a per-process temporary SQLite file by default so test runs do
 
 The primary track is **Alexa+ · simulated experience**. The working code and traceability matrix are in this repository. A sub-three-minute demo script and a product-feedback draft are in DEMO_SCRIPT.md and docs/product_feedback_draft.md.
 
-The repository currently has **no tracked open-source license file**. The hackathon requires one for a public GitHub repository. The owner needs to choose and approve the license before making the repository public or submitting it. No code has been pushed and no Devpost submission or product feedback has been sent.
+The feature branch `feat/ready-at-home-sim-experience` has been pushed to the configured GitHub repository. The repository currently has **no tracked open-source license file**; the owner must choose and approve one before using this public-repository route for the hackathon. No Devpost submission or product feedback has been sent.
 
 See docs/SUBMISSION.md, docs/JUDGING_ALIGNMENT.md, SUBMISSION_CHECKLIST.md, and SYSTEM_AUDIT.md for the submission copy, requirement mapping, remaining evidence, and forensic notes.
 The official Amazon resource review and code mapping are in docs/amazon_resource_review.md.

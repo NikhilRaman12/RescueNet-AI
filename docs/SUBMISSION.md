@@ -78,7 +78,7 @@ This work adds the ReadyAtHome browser simulation, its typed deterministic API a
 
 The Alexa+ simulated-experience path is selected. The official rules allow a simulated web experience without a specific SDK or MCP-shaped surface; the repository must include the simulation source and the demo video must show it working. The FAQ says Alexa+ add-on developer tools are limited to select partners. This project therefore makes no official integration claim.
 
-AWS Builder and Open Source mini-challenges are not claimed. No AWS service is used, and this work has not been pushed as an open-source contribution.
+AWS Builder and Open Source mini-challenges are not claimed. No AWS service is used. The feature branch was pushed to the configured GitHub repository, but no separate Open Source mini-challenge entry has been prepared.
 
 ## Demo and evidence
 
@@ -97,4 +97,4 @@ See [the Amazon resource review](amazon_resource_review.md) for the official-res
 
 ## License and publication
 
-No LICENSE file is tracked in the current repository. The event requires a public repository to include an open-source license. The owner needs to choose and approve the license before publication or submission. This draft does not grant a license.
+No LICENSE file is tracked in the current repository. The event requires a public repository to include an open-source license. The feature branch is pushed, but the owner must choose and approve a license before using this public-repository route for submission. This draft does not grant a license.

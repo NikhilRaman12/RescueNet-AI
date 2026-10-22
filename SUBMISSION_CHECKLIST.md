@@ -1,6 +1,6 @@
 ﻿# ReadyAtHome submission readiness checklist
 
-**Current state:** code and draft materials are local on branch feat/ready-at-home-sim-experience. No code has been pushed, no video has been recorded, and nothing has been submitted to Devpost.
+**Current state:** code and draft materials are committed and pushed on branch `feat/ready-at-home-sim-experience`. No video has been recorded, and nothing has been submitted to Devpost.
 
 The official rules list the deadline as October 23, 2026 at 12:00 p.m. PDT (October 24 at 12:30 a.m. India time). Recheck the live Devpost countdown before submission.
 

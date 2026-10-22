@@ -82,7 +82,7 @@ Final verification after the changes:
 - TypeScript: npm.cmd exec tsc -- --noEmit passed after updating Vite module resolution and fixing the pre-existing summary typing/import errors.
 - Local HTTP smoke: Vite page and transformed module returned HTTP 200; demo API returned five tasks; plan POST returned flood_preparedness; task completion was logged and visible through the activity endpoint.
 - Browser UI inspection was not available: the computer-use service reported that neither in-app browser nor Chrome was available. Therefore visual/browser-console inspection is not claimed.
-- No cloud deployment, AWS integration, live Slack test, live API test, Alexa+ device test, video recording, push, or Devpost submission was performed.
+- No cloud deployment, AWS integration, live Slack test, live public-data API test, Alexa+ device test, video recording, or Devpost submission was performed.
 
 The three test warnings are from the current pytest-asyncio loop-scope default, Starlette/httpx TestClient deprecation, and the legacy google.generativeai dependency deprecation.
 
@@ -94,6 +94,12 @@ The three test warnings are from the current pytest-asyncio loop-scope default, 
 - Amazon Devices Builder Tools were assessed as a coding aid for Fire OS/Vega development and were not installed or represented as product integration.
 - No Amazon sample code was copied. No AWS service was added or claimed for the AWS Builder mini-challenge.
 
+## Git publication status
+
+- Commit `bbdf7f1` (`feat: add ReadyAtHome simulation experience`) was pushed to `origin/feat/ready-at-home-sim-experience` as requested.
+- The pre-existing blank-line edit in `slack_app/slack_client.py` remains unstaged and outside the pushed commits.
+- This push does not complete a Devpost submission. The repository has no tracked LICENSE file; owner review and an approved license remain necessary for the public-repository submission route.
+
 ## Deployment and likely blockers
 
 - Local demo needs the FastAPI backend and Vite frontend running in separate terminals.
@@ -101,7 +107,7 @@ The three test warnings are from the current pytest-asyncio loop-scope default, 
 - A public GitHub submission requires an owner-approved open-source license. No prior license terms were found, so this work did not add a license.
 - The timed video still must be recorded and published to YouTube or Vimeo; screenshots still need to be captured from the actual app.
 - Product feedback is a draft and has not been submitted.
-- This work remains a local branch; no code was pushed.
+- No Devpost submission or product-feedback response was sent.
 
 ## Smallest credible submission route
 
