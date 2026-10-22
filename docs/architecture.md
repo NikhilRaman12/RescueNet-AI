@@ -1,147 +1,47 @@
-# RescueNet Slack — Architecture
+﻿# Existing RescueNet responder architecture
 
-## Overview
+This document describes the pre-existing Slack/incident-response subsystem. It is not the architecture of the ReadyAtHome simulated experience. The current ReadyAtHome flow is documented in README.md and docs/SUBMISSION.md.
 
-RescueNet Slack keeps the existing RescueNet AI backend and wraps it with a Slack-native interface. Slack is the primary disaster-coordination UX and the main submission surface. The Streamlit Command Center is a transparent operational view over the same incident store, evidence, approvals, and audit trail.
+The existing RescueNet Slack flow retains a FastAPI backend and wraps it with Slack command, event, and approval handlers. The Streamlit Command Center provides an operational view over the local incident store. Slack and public-data connections require separate configuration; their demo adapters are not live data.
 
-## High-Level Flow
+## Existing high-level flow
 
-```
-Slack Workspace
-  -> /rescuenet command or @RescueNet mention
-  -> slack_app: command parsing, event handling, Block Kit rendering
-  -> rescuenet_slack.orchestrator: incident extraction
-  -> slack_app.context_search: Slack Real-Time Search (demo adapter)
-  -> mcp_server.tools: weather, shelter, hospital, route, resource, audit
-  -> backend.services.rescue_graph: LangGraph multi-agent workflow
-  -> rescuenet_slack.risk_engine: deterministic 0-100 scoring
-  -> rescuenet_slack.response_planner: recommended actions
-  -> rescuenet_slack.safety: confidence + human approval gate
-  -> rescuenet_slack.store: SQLite persistence
-  -> slack_app.blockkit: Block Kit incident card
-  -> Human approval in Slack (Approve / Revise / Escalate / View Evidence / Refresh)
-  -> Audit trail (SQLite + data/audit_log.jsonl)
-```
+~~~text
+Slack command or mention
+  -> slack_app parsing and handlers
+  -> rescuenet_slack incident extraction
+  -> demo Slack-context search
+  -> local MCP-named tool facade
+  -> legacy LangGraph responder workflow
+  -> deterministic incident-priority scoring
+  -> draft response plan and safety review
+  -> human approval through Slack actions
+  -> existing SQLite and JSONL audit paths
+~~~
 
-## Agent Mapping
+## ReadyAtHome flow
 
-| Logical Agent | Implementation |
-|---|---|
-| Incident Detection Agent | `rescuenet_slack/orchestrator.py::extract_incident` |
-| Slack Context Intelligence Agent | `slack_app/context_search.py::build_slack_context` |
-| Hazard Intelligence Agent | `mcp_server/tools.py::get_weather_alert` |
-| Resource Discovery Agent | `mcp_server/tools.py::get_available_resources`, `get_shelter_capacity` |
-| Risk & Priority Agent | `rescuenet_slack/risk_engine.py::score_incident` |
-| Response Planning Agent | `rescuenet_slack/response_planner.py::build_response_plan` |
-| Verification/Safety Agent | `rescuenet_slack/safety.py::review_plan` |
-| Incident Commander Agent | `slack_app/actions.py::handle_incident_action` (human-in-the-loop) |
-| Multi-Agent Rescue Graph | `backend/services/rescue_graph.py::run_rescue_graph` (LangGraph) |
+~~~text
+Browser text request
+  -> frontend/src/readyathome.tsx
+  -> POST /api/readiness/plan
+  -> readyathome.service deterministic intent and checklist
+  -> explainable plan, assumptions, source links, integration labels
+  -> browser local storage for task flags
+  -> POST /api/readiness/tasks/{task_id}
+  -> rescuenet_slack.store audit_events table
+~~~
 
-## Risk Scoring
+ReadyAtHome does not call Slack, LangGraph, the responder risk engine, MCP-named tools, live data adapters, or a language model. The typed contracts are in readyathome/models.py; routes are in backend/routers/readiness.py.
 
-Deterministic 0–100 score across 7 factors. LLM may explain but never decides the score.
+## Preserved responder components
 
-| Factor | Max Points |
-|---|---|
-| People affected | 20 |
-| Vulnerable groups | 15 |
-| Medical urgency | 12 |
-| Hazard severity | 15 |
-| Escalation trend (Slack context) | 10 |
-| Access constraints (route risk) | 15 |
-| Resource gap | 13 |
-| **Total** | **100** |
+- backend/main.py: existing FastAPI endpoints plus the ReadyAtHome router.
+- backend/services/rescue_graph.py: legacy multi-agent incident-response workflow.
+- slack_app/: Slack commands, events, Block Kit, action handlers, and demo context search.
+- rescuenet_slack/: incident extraction, risk scoring, plan generation, audit persistence, and orchestration.
+- mcp_server/: existing local demo tool facade; not a verified remote MCP server.
+- command_center/: existing Streamlit operations pages.
+- frontend/src/App.tsx: existing React incident command center, still served from the root Vite page.
 
-Priority tiers: LOW (0–29) | MODERATE (30–49) | HIGH (50–69) | SEVERE (70–84) | CRITICAL (85–100)
-
-## Data Layer
-
-SQLite database at `data/rescuenet.db`. Tables:
-
-- `incidents` — extracted incident records with risk score, priority tier, approval status
-- `evidence` — Slack context and MCP context snapshots per incident
-- `response_plans` — generated action plans per incident
-- `approvals` — human approval decisions
-- `audit_events` — full audit trail
-- `integration_status` — live vs demo adapter status per integration
-
-Both Slack (via FastAPI) and Streamlit read from the same SQLite store.
-
-## MCP Tool Layer
-
-`mcp_server/tools.py` exposes a local facade:
-
-- `get_weather_alert(location)` — weather risk and rainfall data
-- `get_shelter_capacity(location)` — shelter names, capacity, available spaces
-- `get_available_resources(location)` — rescue boats, ambulances, volunteers, supplies
-- `get_hospital_status(location)` — emergency beds, ambulances, trauma readiness
-- `get_route_risk(location)` — blocked routes, recommended route
-- `log_incident_action(incident_id, action)` — audit logging
-
-Currently uses demo JSON files in `data/`. Replace by pointing `TOOL_REGISTRY` to a real MCP server.
-
-## Slack Real-Time Search Abstraction
-
-`slack_app/context_search.py` provides:
-
-- `search_slack_context(query, channels, time_window)`
-- `retrieve_related_incident_threads(location, hazard_type)`
-- `retrieve_resource_mentions(location)`
-- `retrieve_latest_field_reports(location)`
-
-Currently uses `data/slack_demo_messages.json` (mode: `mock_rts_search`). Replace with Slack Real-Time Search API by adding credentials and updating the search functions.
-
-## Human-in-the-Loop Safety
-
-The agent never dispatches resources automatically. Every incident card requires one of:
-
-- Approve Response Plan → status: `approved`
-- Request Revision → status: `revision_requested`
-- Escalate to Commander → status: `escalated`
-
-All decisions are written to the audit trail.
-
-## Component Map
-
-```
-backend/
-  main.py                  FastAPI app, all API endpoints
-  services/rescue_graph.py LangGraph multi-agent workflow
-  agents/                  10 specialist agents
-  a2a/protocol.py          Agent-to-agent message protocol
-  database/mongo.py        OperationalDataStore (in-memory + extended city data)
-
-rescuenet_slack/
-  orchestrator.py          Incident extraction + full analysis pipeline
-  risk_engine.py           Deterministic 0-100 scoring
-  response_planner.py      Action plan generation
-  safety.py                Confidence + human approval gate
-  incident_models.py       Pydantic models + priority tier logic
-  store.py                 SQLite persistence layer
-  audit_log.py             JSONL audit log writer
-
-slack_app/
-  app.py                   Slack Bolt app, App Home, all handlers
-  commands.py              /rescuenet command router (7 commands)
-  events.py                @mention handler
-  actions.py               Button action handler
-  blockkit.py              Block Kit card builder
-  context_search.py        Slack Real-Time Search abstraction
-  config.py                Slack settings from environment
-
-mcp_server/
-  tools.py                 MCP-compatible tool facade
-  server.py                Standalone MCP FastAPI app
-  schemas.py               Pydantic schemas for tool outputs
-
-command_center/
-  streamlit_app.py         Streamlit operational command center (5 tabs)
-
-data/
-  slack_demo_messages.json Demo Slack messages for context search
-  shelters_demo.json       Demo shelter data
-  resources_demo.json      Demo resource data
-  weather_demo.json        Demo weather data
-  audit_log.jsonl          JSONL audit log
-  rescuenet.db             SQLite incident store (auto-created)
-```
+Live public-data adapters are disabled by default after this work; USE_LIVE_APIS=true explicitly opts into the legacy adapters. They are never used in ReadyAtHome.

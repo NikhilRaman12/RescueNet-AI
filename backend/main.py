@@ -18,6 +18,7 @@ from backend.evaluation.evaluator import evaluate_response
 from backend.services.live_data_tools import fetch_live_data_bundle
 from backend.services.mcp_service import fetch_external_context, get_mcp_events, register_mcp_handlers
 from backend.services.rescue_graph import LANGGRAPH_AVAILABLE, run_rescue_graph
+from backend.routers.readiness import router as readiness_router
 from mcp_server.tools import gather_mcp_context, list_tools as list_slack_mcp_tools
 from rescuenet_slack.incident_models import IncidentSignal
 from rescuenet_slack.orchestrator import analyze_signal
@@ -51,6 +52,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(readiness_router)
 
 # Use global a2a_protocol singleton imported above
 _slack_request_handler = None

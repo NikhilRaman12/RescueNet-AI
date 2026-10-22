@@ -1,13 +1,13 @@
-import os
 from fastapi.testclient import TestClient
 from backend.main import app
 from rescuenet_slack.store import get_incident, get_response_plan, get_evidence
 
 client = TestClient(app)
 
-def test_live_disaster_vertical_flow():
-    # Force USE_LIVE_APIS to True for this flow
-    os.environ["USE_LIVE_APIS"] = "true"
+def test_offline_disaster_vertical_flow(monkeypatch):
+    # Keep this integration test reproducible and independent of external APIs.
+    monkeypatch.setattr("backend.services.rescue_graph.USE_LIVE_APIS", False)
+    monkeypatch.setattr("mcp_server.tools._USE_LIVE", False)
     
     # 1. Analyze field report
     report_text = "Flood near Vijayawada. 120 people trapped, need immediate boat dispatch and shelter backup."
@@ -32,9 +32,9 @@ def test_live_disaster_vertical_flow():
     assert card["incident"]["hazard_type"] == "flood"
     assert card["risk"]["score"] > 50
     
-    # Assert live APIs were queried
+    # The tool layer must identify its fixture data instead of claiming it is live.
     sources = card["safety"]["data_sources"]
-    assert any("live" in s.lower() or "open-meteo" in s.lower() or "osrm" in s.lower() for s in sources)
+    assert any("demo" in source.lower() for source in sources)
 
     # 2. Verify persisted in SQLite
     incident = get_incident(incident_id)

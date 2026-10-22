@@ -1,32 +1,12 @@
-# Submission Notes
+﻿# Submission notes
 
-## Project
+This repository originally contained a Slack-based RescueNet AI responder project. The current Amazon Developer Hackathon draft is ReadyAtHome, an independent simulated Alexa+ interaction experience.
 
-RescueNet Slack: Autonomous Crisis Operations Agent for Slack
+See:
+- README.md for setup and the reproducible local flow.
+- docs/SUBMISSION.md for copy-ready project description and implementation details.
+- docs/JUDGING_ALIGNMENT.md for the event-requirement traceability matrix.
+- DEMO_SCRIPT.md for the timed video narration.
+- docs/product_feedback_draft.md for product feedback text that still needs owner review.
 
-## Track
-
-Slack Agent for Good
-
-## What Works
-
-- Slack slash command flow through `slack_app.commands`.
-- Mention handler through `slack_app.events`.
-- Block Kit incident card generation.
-- Human approval, revision, and escalation actions.
-- MCP-compatible local tool facade.
-- Slack Real-Time Search abstraction with local demo fallback data.
-- Existing RescueNet rescue graph remains integrated.
-- Transparent Streamlit operational command center for public demo links.
-- Hugging Face Spaces and Streamlit Community Cloud deployment guides.
-- Docker and local FastAPI demo endpoints are documented.
-
-## UX and Deployment
-
-- Primary UX: Slack App / Slack Agent.
-- Transparent operational view: Streamlit Command Center.
-- Preferred deployment: Hugging Face Spaces or Streamlit Community Cloud.
-
-## Safety
-
-Recommendations are decision support only. Every generated plan requires human approval before dispatch, escalation, or resource commitment. The card displays confidence and source categories.
+Do not describe ReadyAtHome as a connected Amazon product, Alexa device, live-alert system, or AWS integration. The prior Slack responder code remains in the repository but is not called by this flow.

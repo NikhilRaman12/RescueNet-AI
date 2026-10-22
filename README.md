@@ -1,419 +1,158 @@
-# 🚨 RescueNet Slack
+﻿# ReadyAtHome · RescueNet AI
 
-> Autonomous Crisis Operations Agent for Slack — *Slack Agent for Good*
+A household-preparedness experience presented as an **independent, simulated Alexa+ interaction**. It turns a typed request about possible flooding into a deterministic, source-linked checklist and local activity trail.
 
-**Primary submission:** Slack-native disaster-coordination agent  
-**Transparent operations view:** [Streamlit Command Center](#streamlit-command-center) — deploy to Streamlit Community Cloud or Hugging Face Spaces  
-**GitHub:** https://github.com/NikhilRaman12/RescueNet-AI  
-**Track:** Slack Agent for Good  
+> This is a prototype. It is not an Amazon product or a connected Alexa device. It does not provide current weather, official alerts, evacuation orders, routes, shelter availability, or emergency dispatch.
 
----
+## What the demo does
 
-## Problem
+1. A participant types a request as if speaking to a voice assistant, or uses the reproducible flood-preparation prompt.
+2. The local API recognizes a small set of flood and severe-rain phrases and returns the same five-step household checklist.
+3. The page explains why each step appears and links to FEMA, Ready.gov, and National Weather Service guidance.
+4. The participant can mark a task complete or reopen it. Browser progress stays in local storage; the existing SQLite audit table records only the scenario, task ID, action, and timestamp.
+5. The page labels the Alexa+ interaction as simulated and alerts, weather, and shelter data as not connected.
 
-During floods, cyclones, and earthquakes, critical updates are scattered across Slack channels — field reports, shelter notes, weather alerts, resource messages. Incident commanders make life-or-death decisions without a shared operational picture. Teams lose minutes searching for context that already exists in their own Slack workspace.
+The current assessment is a **planning scenario**, not a risk score, forecast, or claim about a household. The planner does not ask for a location or household details. It does not call an LLM, Amazon service, AWS service, MCP server, weather API, or speech-recognition API.
 
-## Impact
+## Run the deterministic demo
 
-RescueNet Slack gives response teams a shared operational loop in seconds:
+Requirements: Python 3.11 or newer and Node.js/npm. The repository already has a Python requirements file and a locked frontend dependency file.
 
-| Before | After |
-|---|---|
-| Commander reads 5 channels manually | Agent searches all channels instantly |
-| No structured severity score | Deterministic 0–100 score across 7 factors |
-| Resources dispatched without verification | Human approval required before any action |
-| No audit trail | Every decision logged to SQLite + JSONL |
-| Scattered context | Single Block Kit incident card with all evidence |
+### Windows PowerShell
 
----
+From the repository root, use one terminal for the API:
 
-## Slack Workflow
+~~~powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+$env:USE_LIVE_APIS = "false"
+.\.venv\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8010
+~~~
 
-```
-Field report posted in #field-reports
-  │
-  ▼
-/rescuenet analyze "Flood water crossed bridge near Village A.
-                    70 people stranded, elderly and children present."
-  │
-  ├─► Incident Detection Agent
-  │     extracts: location, hazard, people, vulnerable groups, urgency
-  │
-  ├─► Slack Context Intelligence Agent  [mock_rts_search]
-  │     searches: #field-reports, #logistics, #shelter-operations,
-  │               #weather-alerts, #medical-response
-  │
-  ├─► Hazard Intelligence Agent  [MCP: get_weather_alert]
-  │     returns: high risk, 96mm rainfall, rising river
-  │
-  ├─► Resource Discovery Agent  [MCP: get_shelter_capacity, get_available_resources]
-  │     returns: Shelter C (140 spaces), Boat Team 2 (available)
-  │
-  ├─► Risk & Priority Agent  [deterministic 0-100]
-  │     score: 79/100  →  SEVERE priority
-  │     factors: large population, vulnerable groups, high hazard,
-  │              blocked routes, corroborating Slack threads
-  │
-  ├─► Response Planning Agent
-  │     actions: dispatch boat team, open Shelter C, stage ambulance
-  │
-  ├─► Verification/Safety Agent
-  │     confidence: 87%  |  human_approval_required: true
-  │
-  ▼
-Block Kit Incident Card posted in #incident-command
-  │
-  ├─► [✅ Approve Response Plan]
-  ├─► [✏️ Request Revision]
-  ├─► [🚨 Escalate to Commander]
-  ├─► [🔍 View Evidence]  →  opens modal with Slack + MCP sources
-  └─► [🔄 Refresh Context]  →  re-runs full pipeline
-  │
-  ▼
-Human approves → audit trail updated → SQLite + JSONL
-```
+In a second terminal:
 
----
+~~~powershell
+Set-Location frontend
+npm.cmd ci
+npm.cmd run dev
+~~~
+
+Open **http://127.0.0.1:5173/ready-at-home.html**. On PowerShell, use npm.cmd if the npm PowerShell shim is blocked by the local execution policy. The original command-center UI remains at **http://127.0.0.1:5173/**.
+
+### macOS/Linux
+
+From the repository root:
+
+~~~sh
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements.txt
+[ -f .env ] || cp .env.example .env
+export USE_LIVE_APIS=false
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 8010
+~~~
+
+In a second terminal:
+
+~~~sh
+cd frontend
+npm ci
+npm run dev
+~~~
+
+Open **http://127.0.0.1:5173/ready-at-home.html**.
+
+The request text appears only in the open page and is sent to the local planner for intent selection. It is not written to SQLite or browser storage. Browser storage holds only task completion flags. The backend uses the existing relative SQLite location, data/rescuenet.db, when the API is run from the repository root. Set RESCUENET_DB_PATH to choose another local path.
+
+## Reproduce the main journey
+
+1. Open the ReadyAtHome page and choose **Prepare my plan** with the sample request.
+2. Confirm the page labels the scenario as a planning rehearsal and explains that there are no live alerts.
+3. Open **Why this is on the list** on a checklist item and follow its official source link if desired.
+4. Mark **Check official local alerts** complete.
+5. Confirm the progress bar updates and the event appears under **Recent activity**.
+6. Refresh the page: task completion remains in this browser; the SQLite event remains in the local audit history.
+7. Try an unrelated request to see the bounded-input error and recovery path.
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Slack Workspace                          │
-│  /rescuenet <cmd>   @RescueNet <text>   App Home   Buttons      │
-└────────────────────────────┬────────────────────────────────────┘
-                             │ Slack Bolt for Python
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      slack_app/                                 │
-│  commands.py   events.py   actions.py   blockkit.py   app.py    │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   rescuenet_slack/                              │
-│  orchestrator.py → risk_engine.py → response_planner.py        │
-│  safety.py       → store.py (SQLite) → audit_log.py (JSONL)    │
-└──────────┬──────────────────────────────────────┬──────────────┘
-           │                                      │
-           ▼                                      ▼
-┌──────────────────────┐              ┌───────────────────────────┐
-│   slack_app/         │              │   mcp_server/tools.py     │
-│   context_search.py  │              │                           │
-│   [mock_rts_search]  │              │  get_weather_alert()      │
-│   data/slack_demo_   │              │  get_shelter_capacity()   │
-│   messages.json      │              │  get_available_resources()│
-└──────────────────────┘              │  get_hospital_status()    │
-                                      │  get_route_risk()         │
-                                      │  log_incident_action()    │
-                                      └───────────────────────────┘
-           │
-           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              backend/services/rescue_graph.py                   │
-│              LangGraph multi-agent workflow (10 agents)         │
-│  DisasterIntelligence → PriorityScoring → DamageAssessment     │
-│  ShelterCoordination → RouteOptimization → ResourceAllocation  │
-│  MedicalTriage → VolunteerCoordination → Alert → MissionPlanner│
-└─────────────────────────────────────────────────────────────────┘
-           │
-           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                  data/rescuenet.db  (SQLite)                    │
-│  incidents │ evidence │ response_plans │ approvals │ audit      │
-│                                                                 │
-│  ← read by Slack app (FastAPI)  AND  Streamlit command center   │
-└─────────────────────────────────────────────────────────────────┘
-```
+~~~mermaid
+flowchart LR
+  U[Browser: simulated voice request] --> P[React + Vite ReadyAtHome page]
+  P -->|typed request, not persisted| A[FastAPI readiness API]
+  A --> D[Deterministic flood-intent rules]
+  D --> C[Fixed checklist, assumptions, guidance links]
+  P -->|task ID + completed flag| A
+  A --> S[Existing SQLite audit table]
+  P --> L[Browser local storage: task flags only]
+  G[Official FEMA / Ready.gov / NWS pages] -. opened by participant .-> P
+~~~
 
----
+The source flow is implemented in:
+- **UI:** frontend/src/readyathome.tsx and frontend/src/readyathome.css
+- **Demo page:** frontend/ready-at-home.html
+- **Typed API contract:** readyathome/models.py
+- **Deterministic domain rules:** readyathome/service.py
+- **API and audit calls:** backend/routers/readiness.py
+- **SQLite store:** rescuenet_slack/store.py
+- **API registration:** backend/main.py
 
-## Risk Scoring — Deterministic 0–100
+The Vite build contains both pages: the original command center and ReadyAtHome. The ReadyAtHome interaction is a separate page and does not replace the older UI.
 
-LLM may explain the score but **never secretly decides it**. Score is computed from 7 explicit factors:
+## What existed before this submission work
 
-| Factor | Max Points | What triggers it |
-|---|---|---|
-| People affected | 20 | ≥50 people → 16pts, ≥100 → 20pts |
-| Vulnerable groups | 15 | elderly/children/disabled/pregnant |
-| Medical urgency | 12 | injured/ambulance/bleeding keywords |
-| Hazard severity | 15 | weather risk level + hazard type |
-| Escalation trend | 10 | corroborating Slack thread count |
-| Access constraints | 15 | blocked routes from MCP route tool |
-| Resource gap | 13 | shortages + shelter capacity vs people |
-| **Total** | **100** | |
+The repository already contained the RescueNet AI incident-response project: a FastAPI backend, LangGraph-based responder workflow, Slack Bolt integration, local demo tool facade and fixture data, SQLite/JSONL audit code, React command center, Streamlit operations view, Docker files, and tests. Git history shows these components were present by July 2026, before the Amazon hackathon submission period.
 
-Priority tiers: `LOW` (0–29) · `MODERATE` (30–49) · `HIGH` (50–69) · `SEVERE` (70–84) · `CRITICAL` (85–100)
+New for this submission work: the standalone ReadyAtHome simulated interaction, its bounded preparedness API and typed contracts, the five-step household checklist, source and simulation labels, local task-progress controls, task audit events, tests, and submission documentation. The existing Slack and responder paths remain in the repository.
 
----
+## Existing project components and honest status
 
-## Slack Commands
-
-| Command | Description |
+| Component | Status |
 |---|---|
-| `/rescuenet help` | Show command reference |
-| `/rescuenet demo` | Run Village A flood demo (deterministic, no API keys needed) |
-| `/rescuenet analyze <text>` | Analyze any field report |
-| `/rescuenet status` | Agent and integration status |
-| `/rescuenet incidents` | List recent incidents from store |
-| `/rescuenet resources <location>` | Resource lookup via MCP |
-| `/rescuenet plan <incident_id>` | View response plan for an incident |
-
----
-
-## MCP Integration
-
-**Status: local demo facade** — clearly labeled, not claimed as live.
-
-| Tool | Demo Source | Upgrade Path |
-|---|---|---|
-| `get_weather_alert(location)` | `data/weather_demo.json` | Point to live weather API |
-| `get_shelter_capacity(location)` | `data/shelters_demo.json` | Point to shelter registry |
-| `get_available_resources(location)` | `data/resources_demo.json` | Point to resource management system |
-| `get_hospital_status(location)` | Inline demo data | Point to hospital API |
-| `get_route_risk(location)` | Inline demo data | Point to routing/GIS API |
-| `log_incident_action(id, action)` | SQLite + JSONL | Already persistent |
-
-To connect a real MCP server, update `TOOL_REGISTRY` in `mcp_server/tools.py`.  
-See `docs/MCP_INTEGRATION.md` for full upgrade instructions.
-
----
-
-## Slack Real-Time Search / Context Search
-
-**Status: demo adapter** — mode labeled `mock_rts_search` in all responses.
-
-| Function | What it does | Demo source |
-|---|---|---|
-| `search_slack_context(query, channels, time_window)` | Full-text search across Slack messages | `data/slack_demo_messages.json` |
-| `retrieve_related_incident_threads(location, hazard)` | Find corroborating incident threads | Same |
-| `retrieve_latest_field_reports(location)` | Latest field reports | Same |
-| `retrieve_resource_mentions(location)` | Logistics and resource mentions | Same |
-
-To connect live Slack Real-Time Search, replace `search_slack_context` in `slack_app/context_search.py` with the Slack SDK search call.  
-See `docs/RTS_INTEGRATION.md` for full upgrade instructions.
-
----
-
-## Integration Matrix
-
-| Component | Status | Notes |
-|---|---|---|
-| Slack slash command `/rescuenet` | ✅ Implemented | 7 sub-commands |
-| Slack App Home | ✅ Implemented | Recent incidents list |
-| `@RescueNet` mention handler | ✅ Implemented | Full pipeline on mention |
-| Incident report modal | ✅ Implemented | Global shortcut `report_incident` |
-| Block Kit incident cards | ✅ Implemented | Priority tier badge, 5 buttons |
-| Interactive buttons | ✅ Implemented | Approve, Revise, Escalate, Evidence, Refresh |
-| Evidence modal | ✅ Implemented | View Evidence button opens modal |
-| Slack Real-Time Search | 🟡 Demo adapter | `mock_rts_search` — upgrade path documented |
-| MCP tools | 🟡 Demo facade | 6 tools, demo data labeled — upgrade path documented |
-| LLM reasoning | 🟡 Optional | Set `GEMINI_API_KEY` or `OPENAI_API_KEY` |
-| Deterministic risk scoring | ✅ Live | 0–100, 7 factors, no LLM dependency |
-| SQLite incident store | ✅ Live | Shared by Slack + Streamlit |
-| Human approval workflow | ✅ Live | Required before any action |
-| Audit trail | ✅ Live | SQLite + JSONL |
-| LangGraph multi-agent graph | ✅ Live | 10 agents, sequential fallback |
-| Streamlit command center | ✅ Live | 5 tabs, same SQLite store |
-| Docker / Docker Compose | ✅ Live | Single `docker compose up --build` |
-| Test suite | ✅ 80/80 passing | Risk scoring, store, commands, modal, Block Kit, MCP, RTS, LangGraph, Slack route readiness |
-
----
-
-## Safety Boundary
-
-> **RescueNet Slack is decision support only.**
-
-- The agent **never dispatches resources automatically**
-- The agent **never contacts emergency services**
-- Every generated plan requires **explicit human approval** before any action
-- Every incident card shows: confidence score, data sources, unsupported claims, and the notice: *"Decision support only. Human responders and emergency authorities retain final control."*
-- If confidence is below threshold or resource availability is uncertain, the plan explicitly asks for verification before action
-- All decisions are written to an immutable audit trail
-
----
-
-## Local Setup
-
-```bash
-git clone https://github.com/NikhilRaman12/RescueNet-AI.git
-cd RescueNet-AI
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-# source .venv/bin/activate     # macOS/Linux
-pip install -r requirements.txt
-copy .env.example .env          # Windows
-# cp .env.example .env          # macOS/Linux
-uvicorn backend.main:app --host 127.0.0.1 --port 8010
-```
-
-Open:
-- API health: http://127.0.0.1:8010/health
-- API docs: http://127.0.0.1:8010/docs
-- Slack agent status: http://127.0.0.1:8010/api/slack/status
-
----
-
-## Demo Commands
-
-**Village A flood demo (no API keys needed):**
-
-```bash
-# Run demo
-curl -X POST "http://127.0.0.1:8010/api/slack/command" \
-  -H "Content-Type: application/json" \
-  -d "{\"text\":\"demo\",\"channel\":\"incident-command\",\"user_id\":\"U-demo\"}"
-
-# Analyze custom report
-curl -X POST "http://127.0.0.1:8010/api/slack/analyze" \
-  -H "Content-Type: application/json" \
-  -d "{\"text\":\"Flood water crossed bridge near Village A. 70 people stranded, elderly and children present.\",\"channel\":\"field-reports\",\"user_id\":\"U-demo\"}"
-
-# Approve (replace <incident_id> from previous response)
-curl -X POST "http://127.0.0.1:8010/api/slack/actions" \
-  -H "Content-Type: application/json" \
-  -d "{\"action_id\":\"approve_response_plan\",\"incident_id\":\"<incident_id>\",\"user_id\":\"U-commander\"}"
-
-# List all incidents
-curl "http://127.0.0.1:8010/api/incidents"
-
-# MCP context
-curl "http://127.0.0.1:8010/api/slack/mcp/context?location=Village+A"
-```
-
-**Streamlit command center:**
-
-```bash
-streamlit run streamlit_app.py
-# Opens: http://localhost:8501
-```
-
-**Slack Bolt app (requires Slack credentials):**
-
-```bash
-python -m slack_app.app
-```
-
----
-
-## Streamlit Command Center
-
-Transparent operational command center for judges and operators. It is not the main submission surface; it exists to show the same incident store, audit trail, evidence, and approval state generated by the Slack-native agent.
-
-Tabs: **Incidents** | **Analyze** | **Audit Trail** | **Integrations** | **Architecture**
-
-Deploy to Streamlit Community Cloud:
-1. Go to https://share.streamlit.io
-2. Repo: `NikhilRaman12/RescueNet-AI`, Branch: `main`, File: `streamlit_app.py`
-3. Add secrets: `USE_MOCK_SLACK_SEARCH="true"`, `USE_MOCK_MCP_TOOLS="true"`, `APP_ENV="production"`
-
-Deploy to Hugging Face Spaces:
-1. New Space → SDK: Streamlit → App file: `streamlit_app.py`
-2. Same secrets as above
-
----
-
-## Slack App Setup
-
-See `docs/slack_setup.md` for full instructions. Summary:
-
-1. Create app at https://api.slack.com/apps
-2. Add scopes: `commands`, `chat:write`, `app_mentions:read`, `channels:history`
-3. Add slash command `/rescuenet` pointing to your deployed backend `/slack/events`
-4. Enable Event Subscriptions: `app_mention`, `app_home_opened`
-5. Enable Interactivity pointing to `/slack/events`
-6. Set env vars: `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`, `SLACK_SIGNING_SECRET`
-
----
-
-## Backend Deployment
-
-**Render (recommended for hackathon):**
-- Build: `pip install -r requirements.txt`
-- Start: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
-- Env: `APP_ENV=production`, `USE_MOCK_SLACK_SEARCH=true`, `USE_MOCK_MCP_TOOLS=true`
-
-**Docker:**
-```bash
-docker compose up --build
-# Backend: http://localhost:8010
-```
-
-See `deployment/render.md`, `deployment/cloud_run.md` for full guides.
-
----
-
-## Environment Variables
-
-```text
-SLACK_BOT_TOKEN=          # xoxb-... from Slack app
-SLACK_APP_TOKEN=          # optional xapp-... for Socket Mode
-SLACK_SIGNING_SECRET=     # from Slack app Basic Information
-SLACK_CLIENT_ID=
-SLACK_CLIENT_SECRET=
-OPENAI_API_KEY=           # optional — for LLM-enhanced reasoning
-GEMINI_API_KEY=           # optional — for LLM-enhanced reasoning
-RESCUENET_LLM_MODEL=      # optional
-USE_MOCK_SLACK_SEARCH=true
-USE_MOCK_MCP_TOOLS=true
-APP_ENV=development
-USE_LIVE_APIS=false       # set true only when public API calls have been verified
-ENABLE_GUARDRAILS=true
-API_HOST=0.0.0.0
-API_PORT=8010
-```
-
-No secrets are committed. Demo mode works with all values empty.
-
----
-
-## Testing
-
-```bash
-python -m pytest
-# 80 tests, all passing
-```
-
-Covers: priority tiers, risk scoring (all 7 factors), all 7 slash commands, incident modal, Block Kit card structure (all 5 buttons), human approval workflow, store persistence, MCP tools, context search adapter, audit trail, dashboard endpoint.
-
----
-
-## Repository Map
-
-```
-backend/              Existing RescueNet AI — FastAPI, LangGraph, 10 agents, A2A protocol
-rescuenet_slack/      Incident extraction, risk scoring, response planning, safety, store
-slack_app/            Slack Bolt app, commands, events, actions, blockkit, context search
-mcp_server/           MCP-compatible local tool facade (6 tools)
-command_center/       Streamlit transparent operational command center (5 tabs)
-data/                 Demo Slack messages, shelters, resources, weather, SQLite DB
-docs/                 architecture, slack_setup, MCP_INTEGRATION, RTS_INTEGRATION,
-                      demo_script, SUBMISSION, JUDGING_ALIGNMENT
-deployment/           Render, Cloud Run, Hugging Face Spaces, Streamlit Cloud guides
-tests/                80 tests - all passing
-```
-
----
-
-## Screenshots
-
-> Add screenshots to `screenshots/` and link here after recording the demo video.
-
-| Screen | File |
-|---|---|
-| App Home — recent incidents | `screenshots/app_home.png` |
-| Block Kit incident card | `screenshots/incident_card.png` |
-| Evidence modal | `screenshots/evidence_modal.png` |
-| Streamlit Incidents tab | `screenshots/streamlit_incidents.png` |
-| Streamlit Analyze tab | `screenshots/streamlit_analyze.png` |
-| Audit trail | `screenshots/audit_trail.png` |
-
----
-
-## Demo Video
-
-> Record a <=3-minute video following `docs/demo_script.md` and add the link here.
-
-**Demo video:** _[add YouTube/Loom link after recording]_
-
-Script: `docs/demo_script.md`
+| ReadyAtHome planner | Deterministic local rules; one supported flood/heavy-rain preparation intent |
+| Alexa+ | Simulated interaction only; no official integration, account, device, or microphone |
+| FEMA / Ready.gov / National Weather Service | Reference links; no runtime fetch |
+| Weather, alerts, evacuation routes, shelters | Not connected in ReadyAtHome |
+| ReadyAtHome task progress | Browser local storage; applies to this browser |
+| ReadyAtHome activity | Existing SQLite audit table; records fixed scenario and task IDs only |
+| RescueNet Slack search | Existing demo adapter unless separately configured |
+| Existing MCP-named tools | Local tool facade and fixtures; not a verified external MCP connection |
+| Legacy public-data adapters | Disabled by default; opt in with USE_LIVE_APIS=true for the legacy responder flow |
+| AWS | No AWS service used; AWS Builder mini-challenge is not claimed |
+
+## Checks
+
+Use the repository root for Python commands.
+
+~~~powershell
+$env:USE_LIVE_APIS = "false"
+$env:GEMINI_API_KEY = ""
+$env:OPENAI_API_KEY = ""
+python -m pytest -q
+python -m compileall -q readyathome backend\routers\readiness.py tests
+Set-Location frontend
+npm.cmd run build
+npm.cmd exec tsc -- --noEmit
+~~~
+
+Pytest configures a per-process temporary SQLite file by default so test runs do not write to a developer's existing operational database. Lint is not configured in this repository. See SYSTEM_AUDIT.md for observed test results and the legacy baseline.
+
+## Safety, privacy, and deployment
+
+- Follow official local alerts and emergency services. This prototype is not an emergency-dispatch service.
+- The plan does not declare an active warning or recommend a specific shelter, route, or evacuation order.
+- Task audit events omit the typed request, address, names, household composition, and medical details.
+- No external calls are needed for the ReadyAtHome demo. Official references open only when a participant selects a link.
+- The backend is intended for local demo use. The repository has no production authentication or multi-user isolation.
+- Docker Compose starts the existing backend; it does not deploy the ReadyAtHome Vite page. Use the two local commands above for the demo.
+- Do not set USE_LIVE_APIS=true for the ReadyAtHome flow; it does not use that adapter.
+
+## Hackathon handoff
+
+The primary track is **Alexa+ · simulated experience**. The working code and traceability matrix are in this repository. A sub-three-minute demo script and a product-feedback draft are in DEMO_SCRIPT.md and docs/product_feedback_draft.md.
+
+The feature branch `feat/ready-at-home-sim-experience` has been pushed to the configured GitHub repository. The repository currently has **no tracked open-source license file**; the owner must choose and approve one before using this public-repository route for the hackathon. No Devpost submission or product feedback has been sent.
+
+See docs/SUBMISSION.md, docs/JUDGING_ALIGNMENT.md, SUBMISSION_CHECKLIST.md, and SYSTEM_AUDIT.md for the submission copy, requirement mapping, remaining evidence, and forensic notes.
+The official Amazon resource review and code mapping are in docs/amazon_resource_review.md.

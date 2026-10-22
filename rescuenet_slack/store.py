@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-DB_PATH = Path("data/rescuenet.db")
+DB_PATH = Path(os.getenv("RESCUENET_DB_PATH", "data/rescuenet.db"))
 
 
 @contextmanager
