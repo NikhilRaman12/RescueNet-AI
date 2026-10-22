@@ -1,48 +1,23 @@
-# RescueNet Slack Architecture
+﻿# RescueNet AI architecture
 
-```text
-Slack Workspace
-  ->
-Slack Agent Interface
-  ->
-Real-Time Search / Context Retrieval
-  ->
-RescueNet Multi-Agent Orchestrator
-  ->
-MCP Tool Layer
-  ->
-Risk Scoring + Response Planning
-  ->
-Safety Verification
-  ->
-Human Approval in Slack
-  ->
-Audit Trail
-```
+The repository now contains two distinct browser/API experiences:
 
-The existing RescueNet AI backend remains the core emergency reasoning engine. Slack-native modules wrap the rescue graph with command parsing, context retrieval, MCP-compatible tool calls, response planning, Block Kit rendering, and human approval.
+1. **ReadyAtHome** is the current Amazon hackathon demo: an independent simulated Alexa+ interaction, served as the Vite page frontend/ready-at-home.html and backed by /api/readiness endpoints. It uses deterministic local rules and source links. It does not connect to Amazon, AWS, live alerts, or the legacy responder agents.
+2. **RescueNet responder / Slack** is the pre-existing incident coordination application, documented in docs/architecture.md. Its public-data adapters are disabled by default and must be explicitly enabled for that legacy flow.
 
-Slack is the primary disaster-coordination UX. The Streamlit Command Center is a transparent operational view that calls the same orchestration and exposes the same incident store for public judging links.
+For the ReadyAtHome components, request flow, setup, safety boundary, and evidence checklist, see README.md. The historical architecture below is retained as responder-system context.
 
-## Components
+## Legacy responder system
 
-- `backend/main.py`: FastAPI API, existing RescueNet endpoints, and local Slack demo endpoints.
-- `backend/services/rescue_graph.py`: existing multi-agent rescue workflow.
-- `slack_app/`: Slack slash command, mention, action, Block Kit, context search, and posting helpers.
-- `rescuenet_slack/`: incident extraction, risk scoring, response planning, safety review, audit trail, and orchestration.
-- `mcp_server/`: local MCP-compatible tool facade.
-- `data/`: deterministic demo data for Slack search, weather, shelters, resources, and audit logs.
-- `command_center/`: Streamlit operational command center for transparent judging and review.
+~~~text
+Slack commands / mentions
+  -> Slack Bolt handlers
+  -> incident extraction and demo context search
+  -> local tool facade
+  -> LangGraph responder workflow and deterministic incident score
+  -> response plan and safety review
+  -> human approval controls
+  -> SQLite + JSONL audit
+~~~
 
-## Data Flow
-
-1. A Slack command or mention enters `slack_app`.
-2. `rescuenet_slack.orchestrator` extracts the incident.
-3. `slack_app.context_search` retrieves related Slack context.
-4. `mcp_server.tools` gathers weather, shelter, hospital, route, resource, and audit context.
-5. `backend.services.rescue_graph.run_rescue_graph` runs the existing RescueNet agent sequence.
-6. `rescuenet_slack.risk_engine` computes severity.
-7. `rescuenet_slack.response_planner` creates recommended actions.
-8. `rescuenet_slack.safety` adds confidence, source, and human approval controls.
-9. `slack_app.blockkit` renders the incident card.
-10. Button actions write to SQLite approvals/audit tables and `data/audit_log.jsonl`.
+The legacy FastAPI entry point is backend.main:app. The React command center is at frontend/src/App.tsx; the Streamlit view is command_center/streamlit_app.py. ReadyAtHome is added as a separate Vite page and API router without replacing those surfaces.

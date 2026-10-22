@@ -1,48 +1,27 @@
-# RescueNet Slack Submission Checklist
+﻿# ReadyAtHome submission readiness checklist
 
-Generated during final QA on 2026-07-10.
+**Current state:** code and draft materials are local on branch feat/ready-at-home-sim-experience. No code has been pushed, no video has been recorded, and nothing has been submitted to Devpost.
 
-| Area | Status | Evidence / Action |
+The official rules list the deadline as October 23, 2026 at 12:00 p.m. PDT (October 24 at 12:30 a.m. India time). Recheck the live Devpost countdown before submission.
+
+| Requirement | Current status | Evidence / next action |
 |---|---|---|
-| Slack primary UX | PASS | Slack slash commands, App Home, mentions, Block Kit, and actions implemented in `slack_app/`. |
-| Qualifying Slack technology | PASS | Slack Bolt, slash command, App Home, events, modals, interactivity, and Block Kit. |
-| Slack App Home | PASS | `_app_home_view` in `slack_app/app.py`. Requires installed Slack app to view live. |
-| Slash commands | PASS | `/rescuenet` routes help, demo, analyze, status, incidents, resources, plan. |
-| @mention handling | PASS | `slack_app/events.py` strips Slack user mention tokens and runs analysis. |
-| Incident report modal | PASS | Global shortcut `report_incident` opens a modal and submits into the existing analysis pipeline. |
-| Block Kit cards | PASS | Incident card includes sections, fields, context, metadata, and actions. |
-| Interactive buttons | PASS | Approve, Request Revision, Escalate, View Evidence, Refresh Context are wired. |
-| Threads | MANUAL ACTION REQUIRED | Responses are thread-ready; live thread behavior requires Slack workspace credentials and event testing. |
-| MCP | PASS | Local MCP-compatible facade and standalone MCP FastAPI app are functional. |
-| RTS/context search | PASS | Demo adapter is functional and labeled `mock_rts_search`; live RTS requires approved Slack access. |
-| Deterministic risk engine | PASS | Seven-factor 0-100 scoring with tests. |
-| Safety verification | PASS | Safety review includes human approval gate and decision-support notice. |
-| Mandatory human approval | PASS | Incidents start `pending_human_approval`; approval status changes only via actions. |
-| Shared incident store | PASS | SQLite store shared by Slack flow and Streamlit command center. |
-| Streamlit operational command center | PASS | `streamlit_app.py` launches a transparent operations view; Slack remains the primary submission UX. |
-| Tests | PASS | `python -m pytest -q` passes locally. |
-| Docker build | PASS | `docker build -t rescuenet-slack:qa .` passes locally. |
-| Backend deployment readiness | PASS | Dockerfile, health endpoint, `/slack/events`, and deployment docs are present. Public deployment still manual. |
-| Streamlit deployment readiness | PASS | Streamlit entrypoint and deployment docs are present. Public deployment still manual. |
-| Public GitHub readiness | MANUAL ACTION REQUIRED | Commit and push after owner review/auth. |
-| Architecture diagram | PASS | `docs/architecture.md` reflects the implemented Slack -> context search -> orchestrator -> MCP -> risk -> approval -> store flow. |
-| Demo script | PASS | `docs/demo_script.md` contains a 3-minute Village A flow. |
-| Devpost content | PASS | `docs/SUBMISSION.md` contains copy-ready sections and URL placeholders. |
-| No exposed secrets | PASS | `.env.example` contains blank secret placeholders; `.env` is ignored. |
-| Honest integration claims | PASS | MCP and RTS are labeled demo/local adapters; live APIs are opt-in. |
-| Judge sandbox access | MANUAL ACTION REQUIRED | Owner must invite `slackhack@salesforce.com` and `testing@devpost.com`. |
-| Demo video | MANUAL ACTION REQUIRED | Record and add URL. |
-| Final Devpost submission | MANUAL ACTION REQUIRED | Owner must paste copy, add URLs, upload video, and submit. |
+| Select a primary track | Drafted | Alexa+ · simulated experience |
+| Demonstrate a working simulation | Implemented locally | Run README commands and record the ReadyAtHome browser journey |
+| Include simulation source | Implemented locally | Review frontend/src/readyathome.tsx, readyathome/, and backend/routers/readiness.py |
+| Public GitHub repo with open-source license, or private repo shared with judges | Blocked on owner choice | No LICENSE file exists. Choose/approve a license before public publication, or choose private sharing and invite reviewers |
+| Explain pre-existing project changes | Drafted | Review docs/SUBMISSION.md and historical July commits; confirm dates and description |
+| Demo video, public, English, less than 3 minutes | Not done | Record the real flow from DEMO_SCRIPT.md, publish to YouTube or Vimeo, and add the URL |
+| Product feedback for tools/API/SDKs used | Draft ready, not submitted | Review docs/product_feedback_draft.md, correct it to firsthand experience, then submit |
+| Identify mini-challenge | Drafted | No AWS Builder or Open Source mini-challenge is claimed |
+| Run setup and main journey from clean clone | Not yet done | Verify after owner approves repository publication/access |
+| Screenshots | Not captured | Capture actual initial page, plan/rationale, completed task/audit, and status labels |
+| Final Devpost entry | Not submitted | Owner completes track choice, description, code repository URL, video URL, product feedback, and submit |
 
-## Final Sandbox Judging Checklist
+## Owner checklist before submission
 
-1. Deploy the FastAPI backend and confirm `GET /health` returns `status: operational`.
-2. Configure Slack Request URLs to `https://<backend-host>/slack/events` for slash commands, Event Subscriptions, Interactivity, and App Home.
-3. Set `SLACK_BOT_TOKEN`, `SLACK_SIGNING_SECRET`, and optional `SLACK_APP_TOKEN`.
-4. Install the Slack app to the developer sandbox.
-5. Run `/rescuenet help`, `/rescuenet demo`, `/rescuenet status`, and `/rescuenet incidents`.
-6. Click View Evidence, Refresh Context, Approve Response Plan, Request Revision, and Escalate to Commander.
-7. Deploy Streamlit from `streamlit_app.py` and verify it reads the same incident store available in that runtime.
-8. Invite `slackhack@salesforce.com` and `testing@devpost.com`.
-9. Record the 3-minute demo using `docs/demo_script.md`.
-10. Add public GitHub, Slack sandbox, backend, Streamlit, and demo video URLs to Devpost.
+- Choose repository access: public with an approved license, or private with reviewer access configured.
+- Confirm the repo is accessible to judges and contains the final code and README.
+- Record and review the video; ensure the full project journey and safety boundaries are visible.
+- Review all submission copy and product feedback for accuracy.
+- Submit the project on Devpost. This workspace work did not submit it.

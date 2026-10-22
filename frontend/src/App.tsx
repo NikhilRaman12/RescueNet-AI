@@ -321,7 +321,12 @@ export default function App() {
     correlationId: rescueResult?.correlation_id ?? 'corr-001',
   };
 
-  const missionSummary = rescueResult?.summary ?? rescueResult?.final_mission_plan?.summary ?? 'Mission orchestration is ready to deploy with contextual intelligence and live data safeguards.';
+  const finalPlanSummary = rescueResult?.final_mission_plan?.summary;
+  const missionSummary = typeof rescueResult?.summary === 'string'
+    ? rescueResult.summary
+    : typeof finalPlanSummary === 'string'
+      ? finalPlanSummary
+      : 'Mission orchestration is ready to deploy with contextual intelligence and live data safeguards.';
   const recommendations = rescueResult?.recommended_actions ?? [
     'Prioritize evacuation of at-risk riverfront zones.',
     'Dispatch medical teams to the highest-impact shelters.',

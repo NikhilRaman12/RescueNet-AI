@@ -16,7 +16,7 @@ from typing import Any, Dict, List
 import requests
 
 DATA_DIR = Path("data")
-_USE_LIVE = os.getenv("USE_LIVE_APIS", "true").lower() == "true"
+_USE_LIVE = os.getenv("USE_LIVE_APIS", "false").lower() == "true"
 
 # ── City coordinate table for live API calls ──────────────────────────────────
 _COORDS: Dict[str, tuple] = {

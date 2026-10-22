@@ -1,146 +1,100 @@
-# Devpost Submission - RescueNet Slack
+﻿# ReadyAtHome · submission draft
 
-## Project Name
+**Primary track:** Alexa+ · simulated experience
 
-RescueNet Slack
+**Mini-challenge:** None claimed
+
+**Submission status:** Draft only. Nothing has been submitted or published by this work.
+
+**Official deadline listed:** October 23, 2026 at 12:00 p.m. PDT (October 24 at 12:30 a.m. India time). Confirm the live Devpost countdown before submitting.
+
+## Project title
+
+ReadyAtHome
 
 ## Tagline
 
-Slack-native crisis operations agent that turns scattered disaster updates into verified, prioritized, human-approved response plans.
+A calmer way to turn a household preparedness request into clear next steps.
 
-## Track
+## Short description
 
-Slack Agent for Good
-
-## Public Links
-
-- Public GitHub URL: `https://github.com/NikhilRaman12/RescueNet-AI`
-- Slack developer sandbox URL: `[add Slack sandbox invite or workspace URL after owner grants access]`
-- Slack backend URL: `[add deployed backend URL]`
-- Streamlit deployed URL: `[add Streamlit Community Cloud or Hugging Face Spaces URL]`
-- Demo video URL: `[add 3-minute demo video URL]`
-
-## Brief Description
-
-RescueNet Slack is submitted as a Slack-native disaster-coordination agent, not as a Streamlit disaster dashboard. NGOs, field volunteers, and incident commanders coordinate response from Slack through `/rescuenet demo`, `/rescuenet analyze <text>`, the Report Incident modal, or an `@RescueNet` mention. The agent extracts incident details, retrieves Slack context, gathers MCP evidence, scores risk deterministically, generates a response plan, verifies safety constraints, and posts a Block Kit incident card that requires human approval before any operational plan is marked approved.
-
-## Impact Statement
-
-During floods, cyclones, earthquakes, and similar emergencies, response updates often arrive across multiple Slack channels. RescueNet Slack reduces context-search time, makes prioritization auditable, and keeps humans in control before resource commitments. It is decision support only and does not replace emergency authorities or dispatch real resources autonomously.
-
-## Inspiration
-
-The project was inspired by disaster-response teams that already coordinate in messaging platforms but lack a shared, evidence-backed operational view. Slack is where responders are already communicating, so RescueNet brings triage, evidence, planning, and approval directly into that workflow.
+ReadyAtHome is an independent, browser-based simulation of a voice-assistant style household-preparedness interaction. A typed request about possible flooding produces a deterministic five-step checklist, explains why each step appears, and links to FEMA, Ready.gov, and National Weather Service guidance. People can mark tasks complete and inspect a local activity record.
 
 ## Problem
 
-Critical incident reports, shelter capacity notes, weather alerts, resource availability, and medical updates are scattered across channels. Commanders can miss evidence, over-trust unverified reports, or approve plans without a durable audit trail.
+Household preparedness advice is spread across official resources, and turning it into a short, understandable set of next steps can be difficult. A general-purpose assistant can also sound more certain than its data supports. ReadyAtHome focuses on one bounded preparedness request and makes its assumptions, sources, and missing connections visible.
 
-## What It Does
+## Solution
 
-- Accepts field reports through Slack slash commands, mentions, and the Report Incident shortcut modal.
-- Shows an App Home with recent incidents and command shortcuts.
-- Searches demo Slack context across field, logistics, shelter, medical, weather, and volunteer channels.
-- Calls MCP-compatible tools for weather, shelters, resources, hospitals, route risk, and audit logging.
-- Computes a deterministic 0-100 risk score from seven explicit factors.
-- Generates a response plan and safety review.
-- Posts a Block Kit incident card with evidence, confidence, resources, and five actions.
-- Requires a human to Approve, Request Revision, or Escalate.
-- Persists incidents, evidence, plans, approvals, and audit events in shared SQLite storage.
-- Shows the same incident store in a transparent Streamlit operational command center.
+The participant types a sentence as if asking a voice assistant for help. A local rule-based service recognizes supported flood or heavy-rain wording and returns the same explainable checklist. The participant can inspect source links and mark progress. The UI says clearly that it is an Alexa+ interaction simulation, with no microphone, live alerts, Amazon connection, or emergency service.
 
-## How We Built It
+## How it works
 
-The existing RescueNet AI backend was preserved and wrapped with Slack-native modules:
+1. A request of at most 240 characters is sent to the local FastAPI endpoint. It is used only to select the supported intent and is not persisted.
+2. Deterministic keyword rules select a fixed flood-preparedness plan.
+3. The API returns the scenario label, assumptions, rationale, checklist, guidance links, and integration statuses under Pydantic response models.
+4. The browser stores only task completion flags in local storage.
+5. Task changes write a timestamped event to the existing SQLite audit table. Metadata contains a fixed scenario identifier and task ID, not the typed request or household details.
+6. The participant sees progress, task rationale, source links, and recent activity.
 
-- `backend/main.py`: FastAPI API, health checks, Slack event route, demo endpoints, A2A, and legacy RescueNet routes.
-- `slack_app/`: Slack Bolt app, slash command routing, App Home, app mention handling, actions, Block Kit, and context search abstraction.
-- `rescuenet_slack/`: incident extraction, deterministic risk engine, response planning, safety review, SQLite store, and audit logging.
-- `mcp_server/`: MCP-compatible local tool facade and standalone FastAPI MCP smoke endpoint.
-- `command_center/`: Streamlit operational command center reading the same SQLite incident store for transparency.
+## Architecture and technologies
 
-## Slack Technology Usage
+- React, TypeScript, Vite, and Lucide React for the browser simulator.
+- Python, FastAPI, and Pydantic for the local, typed API.
+- Deterministic Python rules for the supported request.
+- The existing SQLite audit table for task events.
+- FEMA, Ready.gov, and National Weather Service websites as reference links opened only when selected.
 
-- Slack Bolt for Python.
-- Slash command: `/rescuenet`.
-- Global shortcut: `report_incident` opens an Incident Report modal.
-- App mention event: `@RescueNet`.
-- App Home: recent incidents and quick commands.
-- Block Kit: incident card, fields, context blocks, and action buttons.
-- Interactivity: Approve Response Plan, Request Revision, Escalate to Commander, View Evidence, Refresh Context.
-- Modal: View Evidence opens an evidence modal.
-- Public Request URL: `/slack/events` on the deployed FastAPI backend.
-- Socket Mode: supported by `python -m slack_app.app` when `SLACK_APP_TOKEN` is set.
+The repository also retains its pre-existing RescueNet AI responder graph, Slack Bolt modules, local MCP-named demo facade, React command center, and Streamlit command center. ReadyAtHome does not call those responder or Slack flows.
 
-## MCP Usage
+## Meaningful implementation details
 
-Current status: local MCP-compatible demo facade. It is functional and clearly labeled as demo data.
+- Bounded intent support: flood, heavy rain, storm, hurricane, cyclone, and monsoon terms.
+- The plan is deterministic and makes no current-risk claim.
+- No user profile, location, or household composition is collected.
+- Checklist completion and reopening are explicit user actions and each is auditable.
+- Unavailable services are labeled “not connected”; official references are labeled as reference material.
+- The ReadyAtHome page is a separate Vite entry and the original React command center remains available.
 
-Implemented tools:
+## Limitations
 
-- `get_weather_alert`
-- `get_shelter_capacity`
-- `get_available_resources`
-- `get_hospital_status`
-- `get_route_risk`
-- `log_incident_action`
+- This is a text interaction; it has no microphone, speech recognition, spoken output, or Alexa+ service connection.
+- Only one preparedness intent is supported.
+- There is no live weather, alert, shelter, route, or evacuation-order data.
+- The checklist is general preparedness information, not an individualized assessment. Follow current local alerts and emergency services.
+- Browser task progress is local to that browser; the SQLite activity log is local to the backend runtime.
+- The backend is intended for local demo use and is not production-authenticated or multi-user isolated.
+- No AWS service, Amazon API, Alexa skill, Agent Skill, or Streamable HTTP MCP server is implemented or claimed.
 
-Standalone MCP smoke server:
+## What existed before the hackathon
 
-```bash
-uvicorn mcp_server.server:mcp_app --host 127.0.0.1 --port 8011
-```
+The RescueNet AI repository already contained a responder-focused disaster-coordination system, Slack integration code, local demo tools and fixtures, a LangGraph workflow, SQLite audit/persistence code, React command center, Streamlit operations view, and deployment material. Git history contains these components by July 2026, before the Amazon submission period.
 
-## RTS / Context Search Usage
+## What changed during this work
 
-Current status: demo adapter labeled `mock_rts_search`.
+This work adds the ReadyAtHome browser simulation, its typed deterministic API and bounded intent handling, the household checklist and source explanations, task completion controls, local audit events, focused tests, and submission documentation. The change is intentionally separate from the responder and Slack products.
 
-The adapter reads `data/slack_demo_messages.json` and returns related incident threads, field reports, and resource mentions. It is not claimed as live Slack Real-Time Search. The upgrade path is documented in `docs/RTS_INTEGRATION.md`.
+## Hackathon fit
 
-## Real Integrations vs Demo Adapters
+The Alexa+ simulated-experience path is selected. The official rules allow a simulated web experience without a specific SDK or MCP-shaped surface; the repository must include the simulation source and the demo video must show it working. The FAQ says Alexa+ add-on developer tools are limited to select partners. This project therefore makes no official integration claim.
 
-| Component | Status | Notes |
-|---|---|---|
-| Slack slash command, App Home, mentions, interactivity | Implemented | Requires Slack app credentials and `/slack/events` configuration |
-| Slack Real-Time Search / RTS | Demo adapter | `mock_rts_search`, upgrade path documented |
-| MCP tools | Local demo facade | Functional local tool layer, upgrade path documented |
-| Deterministic risk engine | Implemented | Seven-factor score, no hidden LLM scoring |
-| SQLite incident store | Implemented | Shared by Slack and Streamlit |
-| Streamlit command center | Implemented | Transparent operational view; Slack remains the primary UX |
-| LLM reasoning | Optional | Demo works without API keys |
-| Live public APIs | Optional opt-in | `USE_LIVE_APIS=false` by default for deterministic judging |
+AWS Builder and Open Source mini-challenges are not claimed. No AWS service is used, and this work has not been pushed as an open-source contribution.
 
-## Challenges
+## Demo and evidence
 
-- Keeping Slack as the primary disaster-coordination UX while preserving the existing RescueNet backend.
-- Making demo mode deterministic and fast without overstating live external integrations.
-- Ensuring risk scoring is auditable rather than hidden behind an LLM.
-- Sharing state cleanly between Slack actions and the Streamlit command center.
+Follow the reproducible flow in README.md. The timed narration is in DEMO_SCRIPT.md. The screen recording, screenshots, public video URL, public-repository/license decision, and Devpost fields still require owner action. Do not describe them as complete until produced.
 
-## Accomplishments
+See [the Amazon resource review](amazon_resource_review.md) for the official-resource decisions, code mapping, verification evidence, and remaining limits.
 
-- A full Slack-native incident loop from field report to human approval.
-- Functional Block Kit card with five operational actions.
-- Shared SQLite persistence for incidents, evidence, plans, approvals, and audit events.
-- Deterministic risk scoring with test coverage.
-- Fast local test suite and deployment-ready backend route for Slack events.
+## References
 
-## What We Learned
+- Official hackathon rules: https://amazonappdev2026.devpost.com/rules
+- Hackathon FAQ: https://amazonappdev2026.devpost.com/details/faqs
+- Organizer clarification for the simulated experience: https://amazonappdev2026.devpost.com/forum_topics/45058-clarification-on-simulated-alexa-web-experience-requirements
+- Ready.gov floods: https://www.ready.gov/floods
+- FEMA emergency kit checklist: https://www.fema.gov/sites/default/files/documents/fema_hm-emergency-supply-kit-checklist_english.pdf
+- National Weather Service flood safety: https://www.weather.gov/safety/flood
 
-Emergency-response agents need strong boundaries: evidence should be visible, demo adapters must be labeled, and humans must approve operational plans. Slack is a strong command surface because it keeps responders inside the conversation where the incident started.
+## License and publication
 
-## Responsible AI
-
-RescueNet Slack is decision support only. It never dispatches resources, never contacts emergency services, and never marks a plan approved without a human action. Incident cards show confidence, data sources, and a notice that human responders and emergency authorities retain final control.
-
-## What's Next
-
-- Connect approved Slack Real-Time Search access.
-- Replace local MCP demo tools with live MCP-backed weather, shelter, GIS, and resource systems.
-- Move SQLite to managed Postgres for multi-instance production deployments.
-- Add signed commander roles and stricter approval permissions.
-- Record and attach the 3-minute demo video.
-
-## Tech Stack
-
-Python, FastAPI, Slack Bolt for Python, Pydantic v2, LangGraph with sequential fallback, SQLite, Streamlit, Docker, pytest.
+No LICENSE file is tracked in the current repository. The event requires a public repository to include an open-source license. The owner needs to choose and approve the license before publication or submission. This draft does not grant a license.
