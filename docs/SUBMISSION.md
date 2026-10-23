@@ -1,12 +1,12 @@
-﻿# ReadyAtHome · submission draft
+# ReadyAtHome · submission draft
 
 **Primary track:** Alexa+ · simulated experience
 
 **Mini-challenge:** None claimed
 
-**Submission status:** This work has not submitted an entry. Live Devpost status could not be independently checked because the connected account requires reauthentication.
+**Submission status:** Not submitted. Live Devpost checks on 2026-10-23 show a blank `Untitled` pre-draft (project ID `1503309`) for this hackathon with no submission timestamp. The Devpost connection is authenticated.
 
-**Deadline:** The local draft records October 23, 2026 at 12:00 p.m. PDT (October 24 at 12:30 a.m. India Standard Time), but this date was not rechecked against the live event page in this verification. Confirm the countdown immediately.
+**Deadline:** October 23, 2026 at 12:00 p.m. Pacific / 19:00 UTC / October 24 at 12:30 a.m. India Standard Time, verified against live Devpost data on October 23.
 
 ## Project title
 
@@ -80,13 +80,13 @@ This work adds the ReadyAtHome browser simulation, its typed deterministic API a
 
 ## Hackathon fit
 
-The Alexa+ simulated-experience path is the draft selection. Official eligibility and current submission requirements were not rechecked in this pass because the connected Devpost account requires reauthentication. Confirm them on the official rules and FAQ before submitting. This project makes no official Alexa+ integration claim.
+The Alexa+ simulated-experience path is the draft selection. Current official rules permit a simulated Alexa+ experience in a web app; this project makes no claim to be an official Alexa+ integration, Agent Skill, MCP server, or Amazon product. Eligibility still requires the entrant to confirm the age, jurisdiction, and other statements in the live form.
 
-AWS Builder and Open Source mini-challenges are not claimed. No AWS service is used. The target branch is `feat/ready-at-home-sim-experience`; the owner must verify its final remote contents before choosing a submission access route. No separate Open Source mini-challenge entry has been prepared.
+AWS Builder and Open Source mini-challenges are not claimed. No AWS service is used. GitHub verification confirms the tested feature commit `8e5562ca8413fbbc008136dd2b1ce19a76fc033f` is included in default branch merge commit `07d79e00a6adb580ca0e97770e4b7877fc1014a1`. The repository is public and has no tracked license; the owner must choose a compliant access route before submitting.
 
 ## Demo and evidence
 
-Follow the reproducible flow in README.md. The timed narration is in DEMO_SCRIPT.md. The screen recording, screenshots, public video URL, public-repository/license decision, and Devpost fields still require owner action. Do not describe them as complete until produced.
+Follow the reproducible flow in README.md. The timed narration is in DEMO_SCRIPT.md. The screen recording, screenshots, public video URL, repository access decision, personal form answers, and first-person product feedback remain pending. The local app endpoints returned HTTP 200 during verification, but this session exposed no browser surface for capturing footage and no video-hosting connection; localhost is not a judge-accessible public demo.
 
 See [the Amazon resource review](amazon_resource_review.md) for the official-resource decisions, code mapping, verification evidence, and remaining limits. The API is local REST, not MCP; no AWS or Amazon runtime service is used.
 
@@ -101,4 +101,4 @@ See [the Amazon resource review](amazon_resource_review.md) for the official-res
 
 ## License and publication
 
-No LICENSE file is tracked in the current repository. The latest local commit is on the remote feature branch, but the current uncommitted changes are not pushed. Recheck the official repository requirement and choose the public-license or private-reviewer route. This draft does not grant a license or change repository access.
+No LICENSE file is tracked. The official rule requires a public repository to include an open-source license, or a private repository to be shared with `testing@devpost.com` and the Amazon team. No license or access change has been made; choose a route only after reviewing the terms. This draft does not grant a license or change repository access.

@@ -1,10 +1,10 @@
 # Devpost final checklist · draft
 
-**Status:** Not submitted by this work. Live Devpost status could not be independently verified because the connected account requires reauthentication.
+**Status:** Not submitted. Live Devpost checks on 2026-10-23 confirmed an existing blank `Untitled` pre-draft (project ID `1503309`) for this hackathon; its `submitted_at` value is null. The account connection is authenticated.
 
 ## Submission fields
 
-- [ ] Project title: ReadyAtHome
+- [ ] Project title: ReadyAtHome (the live Devpost pre-draft still says `Untitled`)
 - [ ] Tagline and short description: review `docs/SUBMISSION.md`
 - [ ] Problem, target household, solution, impact, and next steps: review and personalize `docs/SUBMISSION.md`
 - [ ] What changed during the hackathon: confirm the wording against the actual commits and working tree
@@ -15,8 +15,8 @@
 - [ ] Public demo video URL: **PENDING** until a real English video under three minutes is uploaded to YouTube or Vimeo and checked
 - [ ] Source repository URL: `https://github.com/NikhilRaman12/RescueNet-AI`
 - [ ] Branch for reviewer code: `feat/ready-at-home-sim-experience`
-- [ ] Confirm the intended, reviewed code is present on GitHub; current local worktree has uncommitted changes
-- [ ] Repository access: owner decision required; no license is present and no access changes have been made
+- [x] Confirm the tested code is on GitHub: feature commit `8e5562ca8413fbbc008136dd2b1ce19a76fc033f` is included in default branch merge commit `07d79e00a6adb580ca0e97770e4b7877fc1014a1`; `main` serves the ReadyAtHome React mount entry.
+- [ ] Repository access: owner decision required; repo is public and has no tracked `LICENSE`
 - [ ] Product feedback: complete from firsthand experience; review `docs/product_feedback_draft.md`; not submitted
 - [ ] Screenshots: capture real application screens; none are verified as captured
 - [ ] Final form fields: verify required text, links, track, and video against the live form
@@ -29,14 +29,14 @@ Choose one route only after checking the current official rules:
 - [ ] Public repository with an owner-approved open-source license, added by the owner
 - [ ] Private repository with the current official reviewers invited and access acceptance confirmed by the owner
 
-Do not infer reviewer names or invitation steps from this draft. The live FAQ could not be checked in this verification pass.
+The live form requires a public repo to include an open-source license, or a private repo shared with `testing@devpost.com` and the Amazon team. It lists `knmeiss`, `giolaq`, `anishamalde`, `mosesroth`, and `emersonsklar`; the September 18 organizer announcement also names `chris-trag` and says invitations must be accepted. Recheck the event page before choosing the private route.
 
 ## Final status record
 
-- Official rules checked URL/date: **PENDING**; Devpost connection needs reauthentication
-- Deadline verified from live event page: **PENDING**
+- Official rules and requirements checked: https://amazonappdev2026.devpost.com/rules, 2026-10-23
+- Deadline verified from live event data: **2026-10-23 19:00 UTC / 12:00 p.m. Pacific**
 - Video URL and runtime: **PENDING**
-- Repository URL and accessible branch: **PENDING owner verification**
+- Repository URL and tested code on default `main`: `https://github.com/NikhilRaman12/RescueNet-AI` / **verified**
 - Product feedback submitted: **NO / pending**
-- Devpost submitted: **NO submission action performed by this work; live status unverified**
+- Devpost submitted: **NO; live project `1503309` has `submitted_at: null`**
 - Submission confirmation URL or ID: **PENDING**

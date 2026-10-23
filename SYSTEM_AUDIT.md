@@ -1,4 +1,4 @@
-﻿# RescueNet AI forensic audit · ReadyAtHome work
+# RescueNet AI forensic audit · ReadyAtHome work
 
 Historical notes below include an audit dated 2026-10-22. Current verification date: 2026-10-23 (client date).
 
@@ -7,11 +7,10 @@ Historical notes below include an audit dated 2026-10-22. Current verification d
 ### Repository state
 
 - Working directory: `C:\Users\Nikhil Raman K\RescueNet-AI`.
-- Branch: `feat/ready-at-home-sim-experience`.
-- `HEAD` and `origin/feat/ready-at-home-sim-experience` both point to `8bbe0ba` (`docs: record ReadyAtHome branch publication status`). Remote: `https://github.com/NikhilRaman12/RescueNet-AI.git`.
-- A read-only GitHub check confirmed the repository is public and the feature branch exists. The remote branch's `frontend/ready-at-home.html` still imports `src/readyathome.tsx` directly and lacks the new React mount entry. This confirms that the local fix and other worktree changes have not reached the submitted code.
-- The worktree has modified tracked files and untracked build/documentation artifacts. The current local changes are not on the remote. No files were staged, committed, or pushed during this verification.
-- Existing `slack_app/slack_client.py` one-line blank-line change remains preserved.
+- The verified feature commit is `8e5562ca8413fbbc008136dd2b1ce19a76fc033f` (`feat: finalize ReadyAtHome submission build`). It is present on `feat/ready-at-home-sim-experience` and included in default-branch merge commit `07d79e00a6adb580ca0e97770e4b7877fc1014a1`.
+- GitHub confirmed the repository is public and `main` serves `frontend/ready-at-home.html` through `frontend/src/readyathome-main.tsx`, the React mount entry.
+- Live Devpost checks on 2026-10-23 at 17:20 UTC showed an authenticated account registered for the event and an empty `Untitled` pre-draft (project ID `1503309`) with `submitted_at: null`.
+- The initial code commit includes the pre-existing one-line blank-line change in `slack_app/slack_client.py`.
 
 ### Audit performed and changes made
 
@@ -19,14 +18,14 @@ Historical notes below include an audit dated 2026-10-22. Current verification d
 - Found that urgent flood requests could receive the ordinary planning checklist. Added a bounded immediate-danger detector that returns local emergency-services guidance and does not return a plan; added three API regression cases.
 - Found that the ReadyAtHome HTML loaded an exported component without mounting it. The production entry bundle was only 56 bytes and contained no app UI. Added `frontend/src/readyathome-main.tsx` to mount the component, then pointed the page to that entry. The rebuilt app entry is 17.46 kB and includes the application UI.
 - Removed an unused fixed fallback value for `A2A_SHARED_SECRET`. Repository search found no consumer of that setting. No credentials are included in `.env.example`.
-- Updated activity/privacy wording: the audit table records plan-generation and task-action events; it excludes request text. Updated submission materials to mark official rules as not rechecked in this pass, because Devpost returned an authentication-required error.
+- Updated activity/privacy wording: the audit table records plan-generation and task-action events; it excludes request text. The current submission documents were subsequently checked against live Devpost rules, requirements, deadline, announcements, and project status.
 - Added `docs/DEVPOST_FINAL_CHECKLIST.md` and `docs/SCREENSHOT_PLAN.md`. No video or screenshot was created.
 
 ### Commands and results in the current working tree
 
 | Command / check | Result |
 |---|---|
-| `git status --short`, `git branch --show-current`, `git log -8 --oneline --decorate`, `git remote -v` | Branch and tracking commit confirmed; dirty worktree, current edits unpushed. |
+| `git status --short`, `git branch --show-current`, `git log -8 --oneline --decorate`, `git remote -v` | The feature commit was committed and pushed; GitHub later confirmed its merge into default `main`. |
 | `python -m pytest -q` with live APIs off and model-key variables blank | **115 passed**, 3 dependency deprecation/future warnings, 87.88 s. |
 | `python -m compileall -q readyathome backend\routers\readiness.py tests` | Passed. |
 | `npm.cmd exec tsc -- --noEmit` | Passed. |
@@ -38,16 +37,16 @@ Historical notes below include an audit dated 2026-10-22. Current verification d
 
 ### Fresh temporary clone/install
 
-- A separate clone of the local feature branch was created, then the current tracked diff and new build/documentation files were overlaid so the clone represents the final uncommitted source snapshot. It is not a clone of a newly pushed remote commit.
+- A separate clone of the local feature branch was created during implementation, with the final source snapshot overlaid before it was committed. The tested application source is now committed as `8e5562c` and included in the GitHub `main` merge commit `07d79e0`.
 - `npm ci` passed in the clone (24 packages).
 - `python -m venv .venv` and `pip install -r requirements.txt` passed in the clone after sandbox network approval.
 - In that clone: full pytest **115 passed, 1 legacy Google Generative AI deprecation warning**; compileall passed; frontend mount test **2 passed**; TypeScript check passed; production build passed with the real ReadyAtHome bundle.
-- The temporary clone was isolated from the working tree database and dependencies. The GitHub feature branch still does not contain these local edits.
+- The temporary clone was isolated from the working tree database and dependencies.
 
 ### Not verified / remaining blockers
 
 - Browser-driven desktop and mobile walkthrough, keyboard/contrast visual review, and console inspection: **NOT VERIFIED**. The available computer-use runtime was unavailable.
-- Current Devpost rules, eligibility, deadline, judging criteria, required feedback/video/repository fields, and live submission status: **BLOCKED**. The connected Devpost service reported that reauthentication is required. The historical review below is not a substitute for a current check.
+- Current Devpost rules, requirements, deadline, latest announcements, and live project status were checked through the authenticated connection on 2026-10-23. The entrant's personal eligibility answers and agreement remain unconfirmed; the live project is still an empty pre-draft, not a submission.
 - Video, screenshots, participant-verified product feedback, repository license/access decision, and Devpost submission: not completed.
 - The API remains a local prototype with no authentication or multi-user isolation. Guidance is fixed, general U.S. reference content, not live or personalized.
 - Python dependencies use lower bounds without a lockfile; the clean install passed with versions available on 2026-10-23, but future resolution may change. The frontend does have `package-lock.json` and was installed with `npm ci`.
@@ -146,14 +145,14 @@ The three test warnings are from the current pytest-asyncio loop-scope default, 
 
 ## Git publication status
 
-- Commit `bbdf7f1` (`feat: add ReadyAtHome simulation experience`) was pushed to `origin/feat/ready-at-home-sim-experience` as requested.
-- The pre-existing blank-line edit in `slack_app/slack_client.py` remains unstaged and outside the pushed commits.
-- This push does not complete a Devpost submission. The repository has no tracked LICENSE file; owner review and an approved license remain necessary for the public-repository submission route.
+- Commit `8e5562c` (`feat: finalize ReadyAtHome submission build`) was pushed to `origin/feat/ready-at-home-sim-experience` and is included in default-branch merge commit `07d79e0`.
+- The earlier one-line blank-line edit in `slack_app/slack_client.py` is included in the pushed feature commit.
+- Git publication does not submit the project to Devpost. The public repository has no tracked LICENSE; the owner must choose a compliant public-license or private-reviewer route.
 
 ## Deployment and likely blockers
 
 - Local demo needs the FastAPI backend and Vite frontend running in separate terminals.
-- A clean-clone install was not run; current local dependencies were already available. README contains npm ci / npm.cmd ci commands for a clean setup.
+- A clean temporary-clone install was run: `npm ci`, Python dependency installation, the 115-test Python suite, frontend tests, TypeScript check, and production build all passed.
 - A public GitHub submission requires an owner-approved open-source license. No prior license terms were found, so this work did not add a license.
 - The timed video still must be recorded and published to YouTube or Vimeo; screenshots still need to be captured from the actual app.
 - Product feedback is a draft and has not been submitted.
