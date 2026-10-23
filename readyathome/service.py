@@ -13,8 +13,25 @@ from readyathome.models import (
 
 DEMO_UTTERANCE = "Help me prepare my household for possible flooding."
 
-_FLOOD_REQUEST = re.compile(
-    r"\b(?:flood\w*|heavy\s+rain|rainstorm|thunderstorm|storm|hurricane|cyclone|monsoon)\b",
+_FLOOD_REQUEST = re.compile(r"\b(?:flood\w*|heavy\s+rain(?:fall)?)\b", re.IGNORECASE)
+_UNSUPPORTED_HAZARD = re.compile(
+    r"\b(?:thunderstorm\w*|storm\w*|hurricane\w*|cyclone\w*|monsoon\w*|"
+    r"typhoon\w*|tornado\w*|tsunami\w*|drought\w*|"
+    r"wildfire\w*|earthquake\w*|heatwave\w*|blizzard\w*)\b",
+    re.IGNORECASE,
+)
+_IMMEDIATE_EMERGENCY = re.compile(
+    r"\b(?:"
+    r"(?:i am|we are|someone is|my \w+ is)\s+(?:trapped|stranded|in immediate danger|"
+    r"having a heart attack|having a stroke|unconscious|bleeding heavily|not breathing)|"
+    r"(?:trapped|stranded)\s+(?:by|in|inside)|"
+    r"(?:my|our|the)\s+(?:house|home|building)\s+(?:is\s+)?on fire|"
+    r"(?:floodwater|water)\s+(?:is\s+)?(?:entering|surrounding|rising inside)|"
+    r"(?:flooding|flooded|fire|wildfire|earthquake|storm)\s+(?:in my home|inside|near me|right now|currently)|"
+    r"(?:i|we|someone)\s+(?:cannot|can't)\s+breathe|"
+    r"(?:need|send|get)\s+(?:emergency\s+)?(?:rescue|help)\s+(?:now|immediately)|"
+    r"immediate\s+(?:danger|emergency)"
+    r")\b",
     re.IGNORECASE,
 )
 
@@ -136,16 +153,30 @@ _TOOLS = [
     ToolStatus(
         name="Activity log",
         status="local",
-        detail="Task changes are recorded in the existing local SQLite audit table without the request text.",
+        detail="Plan generation and task actions are recorded in the existing local SQLite audit table without the request text.",
     ),
 ]
 
 
 def build_readiness_plan(utterance: str) -> ReadinessPlan:
     """Build the reproducible flood-preparedness scenario without external calls."""
+    if _IMMEDIATE_EMERGENCY.search(utterance):
+        raise ValueError(
+            "If you are in immediate danger, contact your local emergency services now "
+            "and follow instructions from local authorities. This demo cannot assess "
+            "conditions or send help."
+        )
+    if _UNSUPPORTED_HAZARD.search(utterance):
+        raise ValueError(
+            "This demo supports flood or heavy-rain preparedness only. It does not "
+            "create plans for storms, hurricanes, cyclones, monsoons, tornadoes, "
+            "wildfires, earthquakes, heatwaves, or blizzards. "
+            "Try: 'Help me prepare my household for possible flooding.'"
+        )
     if not _FLOOD_REQUEST.search(utterance):
         raise ValueError(
-            "This demo supports flood or heavy-rain preparedness requests. "
+            "I couldn't identify a supported flood or heavy-rain request. This demo "
+            "does not create plans for other hazards. "
             "Try: 'Help me prepare my household for possible flooding.'"
         )
 
@@ -162,7 +193,7 @@ def build_readiness_plan(utterance: str) -> ReadinessPlan:
                 "request. This is a planning exercise, not a forecast or current risk rating."
             ),
             rationale=[
-                "The request matched flood, heavy-rain, or storm preparedness wording.",
+                "The request matched explicit flood or heavy-rain preparedness wording.",
                 "The plan is ordered around official alerts, household preparation, and flood safety.",
                 "No location, live weather, household vulnerability, or evacuation status was assessed.",
             ],
@@ -170,6 +201,7 @@ def build_readiness_plan(utterance: str) -> ReadinessPlan:
         assumptions=[
             "The scenario is a fictional preparedness rehearsal for possible flooding.",
             "No household details or location are required or stored by the planner.",
+            "Guidance links are from U.S. federal agencies and may not match rules elsewhere.",
             "The checklist is general; follow current local alerts and official instructions.",
         ],
         tasks=list(_TASKS),

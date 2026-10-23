@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Activity,
   ArrowDownRight,
@@ -13,6 +13,7 @@ import {
   ListChecks,
   LoaderCircle,
   RefreshCw,
+  RotateCcw,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
@@ -33,6 +34,7 @@ type ReadinessSource = { id: string; label: string; url: string };
 type ReadinessPlan = {
   scenario_id: string;
   scenario_name: string;
+  guidance_region: 'United States';
   assistant_response: string;
   assessment: { label: string; summary: string; rationale: string[] };
   assumptions: string[];
@@ -46,17 +48,25 @@ const DEMO_PROMPT = 'Help me prepare my household for possible flooding.';
 const STORAGE_KEY = 'readyathome-progress-v1';
 const API_BASE = import.meta.env.VITE_API_BASE?.trim() || 'http://127.0.0.1:8010';
 
+function requestErrorMessage(path: string, status: number, body: Record<string, unknown>) {
+  if (typeof body.detail === 'string') return body.detail;
+  if (status === 422 && path === '/api/readiness/plan') {
+    return 'Use 3 to 240 characters and ask specifically about flooding or heavy rain. Other hazards are not supported yet.';
+  }
+  if (status === 422) return 'The request format was not accepted. Check the form and try again.';
+  return `Request failed (${status}). Please try again.`;
+}
+
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_BASE}${path}`, init);
   } catch {
-    throw new Error('Could not reach the local planner. Start the FastAPI backend on port 8010, then try again.');
+    throw new Error('Could not reach the local planner. Check that the FastAPI backend is running, then try again.');
   }
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const detail = typeof body.detail === 'string' ? body.detail : `Request failed (${response.status}).`;
-    throw new Error(detail);
+    throw new Error(requestErrorMessage(path, response.status, body));
   }
   return body as T;
 }
@@ -76,8 +86,19 @@ function savedProgress(): Record<string, boolean> {
 function saveProgress(progress: Record<string, boolean>) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    return true;
   } catch {
     // Keep the current session usable if browser storage is unavailable.
+    return false;
+  }
+}
+
+function clearSavedProgress() {
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -90,6 +111,7 @@ function describeActivity(event: ActivityEvent, tasks: ReadinessTask[]) {
 }
 
 export default function ReadyAtHome() {
+  const requestInputRef = useRef<HTMLTextAreaElement>(null);
   const [utterance, setUtterance] = useState(DEMO_PROMPT);
   const [plan, setPlan] = useState<ReadinessPlan | null>(null);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
@@ -99,11 +121,14 @@ export default function ReadyAtHome() {
   const [activityLoading, setActivityLoading] = useState(false);
   const [error, setError] = useState('');
   const [activityError, setActivityError] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
+  const [ignoreStoredProgress, setIgnoreStoredProgress] = useState(false);
 
   const completedCount = useMemo(
     () => plan?.tasks.filter((task) => completed[task.id]).length ?? 0,
     [completed, plan],
   );
+  const remainingCount = (plan?.tasks.length ?? 0) - completedCount;
 
   async function refreshActivity() {
     setActivityLoading(true);
@@ -126,6 +151,7 @@ export default function ReadyAtHome() {
     event.preventDefault();
     setLoading(true);
     setError('');
+    setResetMessage('');
     setPlan(null);
     try {
       const result = await requestJson<ReadinessPlan>('/api/readiness/plan', {
@@ -133,11 +159,11 @@ export default function ReadyAtHome() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ utterance }),
       });
-      const saved = savedProgress();
+      const saved = ignoreStoredProgress ? {} : savedProgress();
       const nextProgress = Object.fromEntries(result.tasks.map((task) => [task.id, saved[task.id] === true]));
       setCompleted(nextProgress);
       setPlan(result);
-      saveProgress(nextProgress);
+      if (saveProgress(nextProgress)) setIgnoreStoredProgress(false);
       await refreshActivity();
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'The local planner could not make a plan.');
@@ -157,13 +183,28 @@ export default function ReadyAtHome() {
       });
       const nextProgress = { ...completed, [task.id]: nextValue };
       setCompleted(nextProgress);
-      saveProgress(nextProgress);
+      if (saveProgress(nextProgress)) setIgnoreStoredProgress(false);
       await refreshActivity();
     } catch (taskError) {
       setError(taskError instanceof Error ? taskError.message : 'The task could not be updated.');
     } finally {
       setSavingTask('');
     }
+  }
+
+  function startNewRehearsal() {
+    const cleared = clearSavedProgress();
+    setIgnoreStoredProgress(!cleared);
+    setPlan(null);
+    setCompleted({});
+    setError('');
+    setUtterance(DEMO_PROMPT);
+    setResetMessage(
+      cleared
+        ? 'New rehearsal started. This browser’s checklist progress was cleared; activity history was kept.'
+        : 'This view was reset, but browser storage could not be cleared. Saved task marks may return after reload; activity history was kept.',
+    );
+    requestInputRef.current?.focus();
   }
 
   function sourceFor(id: string) {
@@ -202,6 +243,7 @@ export default function ReadyAtHome() {
               <label htmlFor="voice-request">What would you like help preparing for?</label>
               <textarea
                 id="voice-request"
+                ref={requestInputRef}
                 value={utterance}
                 onChange={(event) => setUtterance(event.target.value)}
                 maxLength={240}
@@ -218,6 +260,7 @@ export default function ReadyAtHome() {
                 </button>
               </div>
             </form>
+            {resetMessage && <p className="reset-message" role="status">{resetMessage}</p>}
             <div className="sample-prompt"><span>Try the reproducible demo</span>
               <button type="button" className="sample-button" onClick={() => { setUtterance(DEMO_PROMPT); setError(''); }}>
                 “Help me prepare for possible flooding”
@@ -234,10 +277,10 @@ export default function ReadyAtHome() {
             <section className="plan-overview" aria-labelledby="plan-title">
               <div className="overview-heading">
                 <div className="section-icon"><Waves size={19} /></div>
-                <div><p className="eyebrow">Your local demo plan</p><h2 id="plan-title">{plan.scenario_name}</h2></div>
+                <div><p className="eyebrow">Your local demo plan · {plan.guidance_region} guidance</p><h2 id="plan-title">{plan.scenario_name}</h2></div>
               </div>
               <div className="progress-summary" aria-live="polite">
-                <div className="progress-copy"><span>Checklist progress</span><strong>{completedCount}<small> / {plan.tasks.length}</small></strong></div>
+                <div className="progress-copy"><span>Checklist progress</span><strong>{completedCount} complete · {remainingCount} remaining</strong></div>
                 <div className="progress-track" role="progressbar" aria-label="Preparedness checklist progress" aria-valuemin={0} aria-valuemax={plan.tasks.length} aria-valuenow={completedCount}>
                   <span style={{ width: `${plan.tasks.length ? (completedCount / plan.tasks.length) * 100 : 0}%` }} />
                 </div>
@@ -253,7 +296,12 @@ export default function ReadyAtHome() {
               <section className="panel checklist-panel" aria-labelledby="checklist-title">
                 <div className="panel-heading">
                   <div><p className="eyebrow">Five practical next steps</p><h2 id="checklist-title"><ListChecks size={21} /> Your checklist</h2></div>
-                  <span className="task-count">{completedCount === plan.tasks.length ? 'All steps checked' : `${plan.tasks.length - completedCount} to review`}</span>
+                  <div className="checklist-actions">
+                    <span className="task-count">{completedCount === plan.tasks.length ? 'All steps checked' : `${remainingCount} to review`}</span>
+                    <button className="secondary-button" type="button" onClick={startNewRehearsal}>
+                      <RotateCcw size={14} /> New rehearsal
+                    </button>
+                  </div>
                 </div>
                 <div className="task-list">
                   {plan.tasks.map((task, index) => {
@@ -265,7 +313,7 @@ export default function ReadyAtHome() {
                           <input
                             type="checkbox"
                             checked={isDone}
-                            disabled={savingTask === task.id}
+                            disabled={Boolean(savingTask)}
                             onChange={(event) => void changeTask(task, event.target.checked)}
                           />
                           <span className="custom-check" aria-hidden="true">{isDone && <Check size={14} />}</span>
@@ -312,7 +360,7 @@ export default function ReadyAtHome() {
                         <li key={`${event.timestamp}-${index}`}><span className="activity-dot" /><div><strong>{describeActivity(event, plan.tasks)}</strong><time dateTime={event.timestamp}>{new Date(event.timestamp).toLocaleString()}</time></div></li>
                       ))}
                     </ol>
-                  ) : <p className="activity-message">Your demo actions will appear here. Only task IDs and event times are recorded.</p>}
+                  ) : <p className="activity-message">Your demo actions will appear here. Only event types, task IDs when relevant, and times are recorded.</p>}
                 </section>
               </aside>
             </div>
@@ -320,7 +368,7 @@ export default function ReadyAtHome() {
             <section className="sources-panel panel" aria-labelledby="sources-title">
               <div className="panel-heading">
                 <div><p className="eyebrow">Reference material, not live feeds</p><h2 id="sources-title"><HeartHandshake size={20} /> Guidance sources</h2></div>
-                <span className="source-disclaimer">Official links · opened only when selected</span>
+                <span className="source-disclaimer">Official U.S. guidance · opened only when selected</span>
               </div>
               <div className="source-list">
                 {plan.sources.map((source) => <a href={source.url} key={source.id} target="_blank" rel="noreferrer"><span><ExternalLink size={15} /></span>{source.label}<ExternalLink size={13} className="source-arrow" /></a>)}
@@ -340,8 +388,8 @@ export default function ReadyAtHome() {
             <div className="empty-art"><House size={32} /><span><ShieldCheck size={15} /></span></div>
             <p className="eyebrow">Ready when you are</p>
             <h2>Try a flood-preparedness rehearsal</h2>
-            <p>Use the sample request above to build the same five-step plan every time. The demo will not check weather, infer your location, or contact anyone.</p>
-            <div className="empty-facts"><span><CheckCircle2 size={15} /> No account or credentials</span><span><CheckCircle2 size={15} /> No live data</span><span><CheckCircle2 size={15} /> Request text stays in this page</span></div>
+            <p>Use the sample request above to build the same five-step plan every time. These references are U.S.-specific. The demo will not check weather, infer your location, or contact anyone.</p>
+            <div className="empty-facts"><span><CheckCircle2 size={15} /> No account or credentials</span><span><CheckCircle2 size={15} /> No live data</span><span><CheckCircle2 size={15} /> Request text is not saved</span></div>
           </section>
         )}
 

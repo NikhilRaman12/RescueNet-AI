@@ -1,26 +1,26 @@
-﻿# ReadyAtHome · RescueNet AI
+# ReadyAtHome · RescueNet AI
 
-A household-preparedness experience presented as an **independent, simulated Alexa+ interaction**. It turns a typed request about possible flooding into a deterministic, source-linked checklist and local activity trail.
+ReadyAtHome is an independent, text-based simulation of a voice-assistant style household preparedness conversation. It turns a supported flood or heavy-rain request into a deterministic, source-linked five-step checklist, explains each task, and records plan-generation and task actions in the local SQLite audit history.
 
-> This is a prototype. It is not an Amazon product or a connected Alexa device. It does not provide current weather, official alerts, evacuation orders, routes, shelter availability, or emergency dispatch.
+> **Simulation and safety:** This is not an Amazon product or an Alexa-connected device. It has no microphone, Alexa+ service, current weather, live alerts, evacuation orders, routes, shelter availability, or emergency dispatch. For real emergencies, follow current local authorities.
 
-## What the demo does
+## What it supports
 
-1. A participant types a request as if speaking to a voice assistant, or uses the reproducible flood-preparation prompt.
-2. The local API recognizes a small set of flood and severe-rain phrases and returns the same five-step household checklist.
-3. The page explains why each step appears and links to FEMA, Ready.gov, and National Weather Service guidance.
-4. The participant can mark a task complete or reopen it. Browser progress stays in local storage; the existing SQLite audit table records only the scenario, task ID, action, and timestamp.
-5. The page labels the Alexa+ interaction as simulated and alerts, weather, and shelter data as not connected.
+- Supported requests: flood and heavy-rain preparedness.
+- Unsupported requests, including storms, hurricanes, cyclones, monsoons, typhoons, tornadoes, tsunamis, and other hazards, receive a clear recovery message. They never silently receive a flood plan.
+- Requests that indicate someone may be in immediate danger receive an emergency-services message instead of a preparedness checklist. The demo cannot assess conditions or dispatch help.
+- The displayed references are U.S. federal guidance from FEMA, Ready.gov, and the National Weather Service. They are reference links, not runtime-fetched or live content; they may not apply outside the United States.
+- The plan is fixed and rule-based. It does not use an LLM, infer location, assess personal risk, or fetch current conditions.
+- Request text is used for intent selection and is not stored. Browser local storage holds only task completion flags. The backend's existing SQLite audit table records plan-generation and task-action events with a fixed scenario, optional task ID, and timestamp; it does not include request text. Browser progress and backend activity are local to their respective runtimes and are not synced between users.
+- **New rehearsal** clears this browser's checklist flags and starts a fresh view; it keeps the SQLite audit history.
 
-The current assessment is a **planning scenario**, not a risk score, forecast, or claim about a household. The planner does not ask for a location or household details. It does not call an LLM, Amazon service, AWS service, MCP server, weather API, or speech-recognition API.
+## Run locally
 
-## Run the deterministic demo
-
-Requirements: Python 3.11 or newer and Node.js/npm. The repository already has a Python requirements file and a locked frontend dependency file.
+Requirements: Python 3.11+, Node.js 20.19+ (or 22.12+) and npm. The frontend lockfile pins the install; use `npm ci` rather than `npm install` for a clean setup. Python requirements have lower bounds but no lockfile, so their resolved versions may change over time. Use two terminals from the repository root.
 
 ### Windows PowerShell
 
-From the repository root, use one terminal for the API:
+Terminal 1, API:
 
 ~~~powershell
 python -m venv .venv
@@ -30,7 +30,7 @@ $env:USE_LIVE_APIS = "false"
 .\.venv\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8010
 ~~~
 
-In a second terminal:
+Terminal 2, frontend:
 
 ~~~powershell
 Set-Location frontend
@@ -38,11 +38,11 @@ npm.cmd ci
 npm.cmd run dev
 ~~~
 
-Open **http://127.0.0.1:5173/ready-at-home.html**. On PowerShell, use npm.cmd if the npm PowerShell shim is blocked by the local execution policy. The original command-center UI remains at **http://127.0.0.1:5173/**.
+Open **http://127.0.0.1:5173/ready-at-home.html**. The existing command center remains at **http://127.0.0.1:5173/**. If PowerShell blocks the `npm` shim, `npm.cmd` works with the default execution policy.
 
 ### macOS/Linux
 
-From the repository root:
+Terminal 1, API:
 
 ~~~sh
 python -m venv .venv
@@ -53,7 +53,7 @@ export USE_LIVE_APIS=false
 python -m uvicorn backend.main:app --host 127.0.0.1 --port 8010
 ~~~
 
-In a second terminal:
+Terminal 2, frontend:
 
 ~~~sh
 cd frontend
@@ -61,69 +61,29 @@ npm ci
 npm run dev
 ~~~
 
-Open **http://127.0.0.1:5173/ready-at-home.html**.
+Then open **http://127.0.0.1:5173/ready-at-home.html**.
 
-The request text appears only in the open page and is sent to the local planner for intent selection. It is not written to SQLite or browser storage. Browser storage holds only task completion flags. The backend uses the existing relative SQLite location, data/rescuenet.db, when the API is run from the repository root. Set RESCUENET_DB_PATH to choose another local path.
+The API binds to localhost by default. Vite and Docker Compose also publish only on localhost. The backend uses `data/rescuenet.db` by default; set `RESCUENET_DB_PATH` to a different local file if needed. The test suite uses a separate temporary database. The API accepts the two local frontend origins by default; set `CORS_ORIGINS` to an explicit comma-separated list if you use another trusted local origin. Do not expose this unauthenticated demo API publicly.
 
 ## Reproduce the main journey
 
-1. Open the ReadyAtHome page and choose **Prepare my plan** with the sample request.
-2. Confirm the page labels the scenario as a planning rehearsal and explains that there are no live alerts.
-3. Open **Why this is on the list** on a checklist item and follow its official source link if desired.
-4. Mark **Check official local alerts** complete.
-5. Confirm the progress bar updates and the event appears under **Recent activity**.
-6. Refresh the page: task completion remains in this browser; the SQLite event remains in the local audit history.
-7. Try an unrelated request to see the bounded-input error and recovery path.
+1. Submit the sample flood-preparedness request.
+2. Confirm the plan says it uses U.S. guidance and is a planning rehearsal, not a forecast.
+3. Expand a task explanation and inspect its source link.
+4. Complete and reopen a task; watch progress and Recent activity update.
+5. Choose **New rehearsal**. The browser checklist resets while activity history remains.
+6. Try “Help me prepare for a hurricane” and confirm the UI reports the unsupported scope while preserving the typed request for editing.
+7. Refresh the page, submit the sample request again, and confirm browser-saved task flags are restored. Activity remains in the backend's local SQLite history.
 
-## Architecture
+## API and checks
 
-~~~mermaid
-flowchart LR
-  U[Browser: simulated voice request] --> P[React + Vite ReadyAtHome page]
-  P -->|typed request, not persisted| A[FastAPI readiness API]
-  A --> D[Deterministic flood-intent rules]
-  D --> C[Fixed checklist, assumptions, guidance links]
-  P -->|task ID + completed flag| A
-  A --> S[Existing SQLite audit table]
-  P --> L[Browser local storage: task flags only]
-  G[Official FEMA / Ready.gov / NWS pages] -. opened by participant .-> P
-~~~
+- `GET /api/readiness/demo` — reproducible demo plan.
+- `POST /api/readiness/plan` with `{"utterance":"Help me prepare for possible flooding"}` — validate and build a plan (3–240 characters).
+- `POST /api/readiness/tasks/{task_id}` with `{"completed":true}` — record completion or reopening for a known task.
+- `GET /api/readiness/activity` — most recent 30 ReadyAtHome audit events, newest first.
+- `GET /health` — API health.
 
-The source flow is implemented in:
-- **UI:** frontend/src/readyathome.tsx and frontend/src/readyathome.css
-- **Demo page:** frontend/ready-at-home.html
-- **Typed API contract:** readyathome/models.py
-- **Deterministic domain rules:** readyathome/service.py
-- **API and audit calls:** backend/routers/readiness.py
-- **SQLite store:** rescuenet_slack/store.py
-- **API registration:** backend/main.py
-
-The Vite build contains both pages: the original command center and ReadyAtHome. The ReadyAtHome interaction is a separate page and does not replace the older UI.
-
-## What existed before this submission work
-
-The repository already contained the RescueNet AI incident-response project: a FastAPI backend, LangGraph-based responder workflow, Slack Bolt integration, local demo tool facade and fixture data, SQLite/JSONL audit code, React command center, Streamlit operations view, Docker files, and tests. Git history shows these components were present by July 2026, before the Amazon hackathon submission period.
-
-New for this submission work: the standalone ReadyAtHome simulated interaction, its bounded preparedness API and typed contracts, the five-step household checklist, source and simulation labels, local task-progress controls, task audit events, tests, and submission documentation. The existing Slack and responder paths remain in the repository.
-
-## Existing project components and honest status
-
-| Component | Status |
-|---|---|
-| ReadyAtHome planner | Deterministic local rules; one supported flood/heavy-rain preparation intent |
-| Alexa+ | Simulated interaction only; no official integration, account, device, or microphone |
-| FEMA / Ready.gov / National Weather Service | Reference links; no runtime fetch |
-| Weather, alerts, evacuation routes, shelters | Not connected in ReadyAtHome |
-| ReadyAtHome task progress | Browser local storage; applies to this browser |
-| ReadyAtHome activity | Existing SQLite audit table; records fixed scenario and task IDs only |
-| RescueNet Slack search | Existing demo adapter unless separately configured |
-| Existing MCP-named tools | Local tool facade and fixtures; not a verified external MCP connection |
-| Legacy public-data adapters | Disabled by default; opt in with USE_LIVE_APIS=true for the legacy responder flow |
-| AWS | No AWS service used; AWS Builder mini-challenge is not claimed |
-
-## Checks
-
-Use the repository root for Python commands.
+From the repository root, with external integrations disabled:
 
 ~~~powershell
 $env:USE_LIVE_APIS = "false"
@@ -132,27 +92,37 @@ $env:OPENAI_API_KEY = ""
 python -m pytest -q
 python -m compileall -q readyathome backend\routers\readiness.py tests
 Set-Location frontend
-npm.cmd run build
 npm.cmd exec tsc -- --noEmit
+npm.cmd test
+npm.cmd run build
 ~~~
 
-Pytest configures a per-process temporary SQLite file by default so test runs do not write to a developer's existing operational database. Lint is not configured in this repository. See SYSTEM_AUDIT.md for observed test results and the legacy baseline.
+Pytest uses a temporary SQLite database unless `RESCUENET_DB_PATH` is explicitly set. `npm.cmd test` checks that the ReadyAtHome page loads a React entry that mounts the component. The frontend lockfile is `frontend/package-lock.json`. No lint script is configured. See [SYSTEM_AUDIT.md](SYSTEM_AUDIT.md) for observed results and verification limits.
 
-## Safety, privacy, and deployment
+## Architecture
 
-- Follow official local alerts and emergency services. This prototype is not an emergency-dispatch service.
-- The plan does not declare an active warning or recommend a specific shelter, route, or evacuation order.
-- Task audit events omit the typed request, address, names, household composition, and medical details.
-- No external calls are needed for the ReadyAtHome demo. Official references open only when a participant selects a link.
-- The backend is intended for local demo use. The repository has no production authentication or multi-user isolation.
-- Docker Compose starts the existing backend; it does not deploy the ReadyAtHome Vite page. Use the two local commands above for the demo.
-- Do not set USE_LIVE_APIS=true for the ReadyAtHome flow; it does not use that adapter.
+~~~mermaid
+flowchart LR
+  U[Typed preparedness request] --> UI[React + Vite simulation]
+  UI -->|request, not persisted| API[FastAPI readiness API]
+  API --> RULES[Deterministic flood / heavy-rain rule]
+  RULES --> PLAN[Fixed checklist, assumptions, U.S. references]
+  UI -->|task ID + completion flag| API
+  API --> DB[Existing local SQLite audit table]
+  UI --> STORE[Browser local storage: task flags only]
+  GOV[Official FEMA / Ready.gov / NWS pages] -. opened by participant .-> UI
+~~~
 
-## Hackathon handoff
+Implementation: `frontend/ready-at-home.html` loads the React mount in `frontend/src/readyathome-main.tsx`, which renders `frontend/src/readyathome.tsx` and its styles. The local API is defined in `readyathome/models.py`, `readyathome/service.py`, and `backend/routers/readiness.py`, with persistence through `rescuenet_slack/store.py`. The original React command center and RescueNet responder components remain in the repository.
 
-The primary track is **Alexa+ · simulated experience**. The working code and traceability matrix are in this repository. A sub-three-minute demo script and a product-feedback draft are in DEMO_SCRIPT.md and docs/product_feedback_draft.md.
+## Existing project and hackathon framing
 
-The feature branch `feat/ready-at-home-sim-experience` has been pushed to the configured GitHub repository. The repository currently has **no tracked open-source license file**; the owner must choose and approve one before using this public-repository route for the hackathon. No Devpost submission or product feedback has been sent.
+The repository predates this work and contains RescueNet AI incident-response workflows, Slack modules, a local tool facade, SQLite/JSONL audit code, a React command center, and a Streamlit view. ReadyAtHome is a separate page and does not invoke those responder or Slack paths.
 
-See docs/SUBMISSION.md, docs/JUDGING_ALIGNMENT.md, SUBMISSION_CHECKLIST.md, and SYSTEM_AUDIT.md for the submission copy, requirement mapping, remaining evidence, and forensic notes.
-The official Amazon resource review and code mapping are in docs/amazon_resource_review.md.
+The selected hackathon route is an **Alexa+ simulated experience**. ReadyAtHome is not a real Alexa skill, Agent Skill, MCP server, or Amazon device app. No Amazon sample code or AWS service was added. The AWS Builder mini-challenge is not claimed. The feature branch is `feat/ready-at-home-sim-experience`.
+
+## Submission and remaining limits
+
+The source and submission drafts are in this repository. The video, actual screenshots, product feedback submission, repository-access decision, and Devpost entry are not complete. The repository has no tracked `LICENSE`; the owner must approve a license for a public-repository route or use the official private-reviewer process. See [docs/SUBMISSION.md](docs/SUBMISSION.md), [docs/JUDGING_ALIGNMENT.md](docs/JUDGING_ALIGNMENT.md), [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md), [DEMO_SCRIPT.md](DEMO_SCRIPT.md), and [docs/amazon_resource_review.md](docs/amazon_resource_review.md).
+
+The backend is a local demo with no production authentication or multi-user isolation. Legacy public-data adapters belong to the existing responder product and are disabled by default; ReadyAtHome does not use them. If the backend is unavailable, restart it in Terminal 1 and retry; task changes are shown as saved only after the API accepts them.

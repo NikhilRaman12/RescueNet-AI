@@ -1,4 +1,5 @@
 import uvicorn
+from backend.config.settings import API_HOST, API_PORT
 
 if __name__ == "__main__":
-    uvicorn.run("backend.main:app", host="0.0.0.0", port=8010, reload=False)
+    uvicorn.run("backend.main:app", host=API_HOST, port=API_PORT, reload=False)

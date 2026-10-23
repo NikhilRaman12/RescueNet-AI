@@ -2,11 +2,18 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ReadinessRequest(BaseModel):
-    utterance: str = Field(min_length=3, max_length=240)
+    utterance: str = Field(min_length=3, max_length=240, strict=True)
+
+    @field_validator("utterance")
+    @classmethod
+    def require_non_whitespace_request(cls, value: str) -> str:
+        if len(value.strip()) < 3:
+            raise ValueError("Enter at least three non-space characters.")
+        return value
 
 
 class ReadinessSource(BaseModel):
@@ -41,6 +48,7 @@ class ReadinessPlan(BaseModel):
     scenario_id: Literal["readyathome-flood-demo"] = "readyathome-flood-demo"
     scenario_name: str
     intent: Literal["flood_preparedness"] = "flood_preparedness"
+    guidance_region: Literal["United States"] = "United States"
     experience_label: Literal["Independent Alexa+ interaction simulation"] = (
         "Independent Alexa+ interaction simulation"
     )

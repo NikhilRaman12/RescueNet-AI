@@ -20,8 +20,12 @@ def _env(name: str, default: str = "") -> str:
 class Settings:
     app_name: str = _env("APP_NAME", "RescueNet AI")
     port: int = int(_env("PORT", "8000"))
-    api_host: str = _env("API_HOST", "0.0.0.0")
+    api_host: str = _env("API_HOST", "127.0.0.1")
     api_port: int = int(_env("API_PORT", "8010"))
+    cors_origins: str = _env(
+        "CORS_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173",
+    )
 
     mongodb_uri: str = _env("MONGODB_URI", "mongodb://localhost:27017/rescuenet")
     mongodb_db: str = _env("MONGODB_DB", "rescuenet")
@@ -32,7 +36,7 @@ class Settings:
 
     partner_mcp_endpoint: str = _env("PARTNER_MCP_ENDPOINT")
     partner_mcp_api_key: str = _env("PARTNER_MCP_API_KEY")
-    a2a_shared_secret: str = _env("A2A_SHARED_SECRET", "rescuenet-local-secret")
+    a2a_shared_secret: str = _env("A2A_SHARED_SECRET")
 
     backend_url: str = _env("BACKEND_URL", "http://localhost:8000")
 
@@ -44,6 +48,13 @@ class Settings:
 settings = Settings()
 API_HOST = settings.api_host
 API_PORT = settings.api_port
+CORS_ORIGINS = tuple(
+    origin.strip().rstrip("/")
+    for origin in settings.cors_origins.split(",")
+    if origin.strip() and origin.strip() != "*"
+)
+if not CORS_ORIGINS:
+    CORS_ORIGINS = ("http://localhost:5173", "http://127.0.0.1:5173")
 ENABLE_GUARDRAILS = settings.enable_guardrails
 ENVIRONMENT = settings.environment
 USE_LIVE_APIS = settings.use_live_apis

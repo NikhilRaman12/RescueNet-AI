@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from backend.a2a.protocol import a2a_protocol as protocol
-from backend.config.settings import API_HOST, API_PORT, ENABLE_GUARDRAILS, ENVIRONMENT, USE_LIVE_APIS
+from backend.config.settings import API_HOST, API_PORT, CORS_ORIGINS, ENABLE_GUARDRAILS, ENVIRONMENT, USE_LIVE_APIS
 from backend.database.mongo import get_operational_snapshot
 from backend.evaluation.evaluator import evaluate_response
 from backend.services.live_data_tools import fetch_live_data_bundle
@@ -41,13 +41,9 @@ app = FastAPI(
     version="2.0.0",
 )
 
-origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
-if ENVIRONMENT != "production":
-    origins.append("*")
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=list(CORS_ORIGINS),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
