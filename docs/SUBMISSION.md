@@ -4,9 +4,9 @@
 
 **Mini-challenge:** None claimed
 
-**Submission status:** Draft only. Nothing has been submitted or published by this work.
+**Submission status:** This work has not submitted an entry. Live Devpost status could not be independently checked because the connected account requires reauthentication.
 
-**Official deadline listed:** October 23, 2026 at 12:00 p.m. PDT (October 24 at 12:30 a.m. India time). Confirm the live Devpost countdown before submitting.
+**Deadline:** The local draft records October 23, 2026 at 12:00 p.m. PDT (October 24 at 12:30 a.m. India Standard Time), but this date was not rechecked against the live event page in this verification. Confirm the countdown immediately.
 
 ## Project title
 
@@ -31,11 +31,13 @@ The participant types a sentence as if asking a voice assistant for help. A loca
 ## How it works
 
 1. A request of at most 240 characters is sent to the local FastAPI endpoint. It is used only to select the supported intent and is not persisted.
-2. Deterministic keyword rules select a fixed flood-preparedness plan.
+2. Deterministic keyword rules select a fixed flood or heavy-rain preparedness plan. Other hazards, including storm-family requests, are rejected with a recoverable error.
 3. The API returns the scenario label, assumptions, rationale, checklist, guidance links, and integration statuses under Pydantic response models.
 4. The browser stores only task completion flags in local storage.
-5. Task changes write a timestamped event to the existing SQLite audit table. Metadata contains a fixed scenario identifier and task ID, not the typed request or household details.
-6. The participant sees progress, task rationale, source links, and recent activity.
+5. Plan generation and task changes write timestamped events to the existing SQLite audit table. Metadata contains a fixed scenario identifier and, for task actions, the task ID; it does not contain the typed request or household details.
+6. The participant sees completed and remaining counts, task rationale, source links, and recent activity. **New rehearsal** clears browser task flags while preserving backend audit history.
+
+The linked sources are official **U.S.** guidance. They are reference material only, are not fetched during planning, and may not match guidance outside the United States.
 
 ## Architecture and technologies
 
@@ -49,8 +51,10 @@ The repository also retains its pre-existing RescueNet AI responder graph, Slack
 
 ## Meaningful implementation details
 
-- Bounded intent support: flood, heavy rain, storm, hurricane, cyclone, and monsoon terms.
+- Bounded intent support: flood and heavy-rain preparedness only; unsupported hazards do not silently receive a flood plan.
+- Input validation: strict text type, 3–240 characters, and at least three non-space characters.
 - The plan is deterministic and makes no current-risk claim.
+- Requests that indicate an immediate emergency receive a message to contact local emergency services and follow local authorities; the demo cannot assess conditions or send help.
 - No user profile, location, or household composition is collected.
 - Checklist completion and reopening are explicit user actions and each is auditable.
 - Unavailable services are labeled “not connected”; official references are labeled as reference material.
@@ -72,23 +76,23 @@ The RescueNet AI repository already contained a responder-focused disaster-coord
 
 ## What changed during this work
 
-This work adds the ReadyAtHome browser simulation, its typed deterministic API and bounded intent handling, the household checklist and source explanations, task completion controls, local audit events, focused tests, and submission documentation. The change is intentionally separate from the responder and Slack products.
+This work adds the ReadyAtHome browser simulation, its typed deterministic API and bounded intent handling, explicit U.S. guidance labeling, the household checklist and source explanations, task completion and reopening controls, a reset that preserves backend audit history, local audit events, focused tests, and submission documentation. The change is intentionally separate from the responder and Slack products.
 
 ## Hackathon fit
 
-The Alexa+ simulated-experience path is selected. The official rules allow a simulated web experience without a specific SDK or MCP-shaped surface; the repository must include the simulation source and the demo video must show it working. The FAQ says Alexa+ add-on developer tools are limited to select partners. This project therefore makes no official integration claim.
+The Alexa+ simulated-experience path is the draft selection. Official eligibility and current submission requirements were not rechecked in this pass because the connected Devpost account requires reauthentication. Confirm them on the official rules and FAQ before submitting. This project makes no official Alexa+ integration claim.
 
-AWS Builder and Open Source mini-challenges are not claimed. No AWS service is used. The feature branch was pushed to the configured GitHub repository, but no separate Open Source mini-challenge entry has been prepared.
+AWS Builder and Open Source mini-challenges are not claimed. No AWS service is used. The target branch is `feat/ready-at-home-sim-experience`; the owner must verify its final remote contents before choosing a submission access route. No separate Open Source mini-challenge entry has been prepared.
 
 ## Demo and evidence
 
 Follow the reproducible flow in README.md. The timed narration is in DEMO_SCRIPT.md. The screen recording, screenshots, public video URL, public-repository/license decision, and Devpost fields still require owner action. Do not describe them as complete until produced.
 
-See [the Amazon resource review](amazon_resource_review.md) for the official-resource decisions, code mapping, verification evidence, and remaining limits.
+See [the Amazon resource review](amazon_resource_review.md) for the official-resource decisions, code mapping, verification evidence, and remaining limits. The API is local REST, not MCP; no AWS or Amazon runtime service is used.
 
 ## References
 
-- Official hackathon rules: https://amazonappdev2026.devpost.com/rules
+- Official hackathon rules (must be rechecked live): https://amazonappdev2026.devpost.com/rules
 - Hackathon FAQ: https://amazonappdev2026.devpost.com/details/faqs
 - Organizer clarification for the simulated experience: https://amazonappdev2026.devpost.com/forum_topics/45058-clarification-on-simulated-alexa-web-experience-requirements
 - Ready.gov floods: https://www.ready.gov/floods
@@ -97,4 +101,4 @@ See [the Amazon resource review](amazon_resource_review.md) for the official-res
 
 ## License and publication
 
-No LICENSE file is tracked in the current repository. The event requires a public repository to include an open-source license. The feature branch is pushed, but the owner must choose and approve a license before using this public-repository route for submission. This draft does not grant a license.
+No LICENSE file is tracked in the current repository. The latest local commit is on the remote feature branch, but the current uncommitted changes are not pushed. Recheck the official repository requirement and choose the public-license or private-reviewer route. This draft does not grant a license or change repository access.

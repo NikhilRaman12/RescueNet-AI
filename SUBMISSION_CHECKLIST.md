@@ -1,27 +1,32 @@
-﻿# ReadyAtHome submission readiness checklist
+# ReadyAtHome submission readiness
 
-**Current state:** code and draft materials are committed and pushed on branch `feat/ready-at-home-sim-experience`. No video has been recorded, and nothing has been submitted to Devpost.
+**Verification date:** 2026-10-23. See `SYSTEM_AUDIT.md` for commands and results. This local checklist does not establish current Devpost eligibility.
 
-The official rules list the deadline as October 23, 2026 at 12:00 p.m. PDT (October 24 at 12:30 a.m. India time). Recheck the live Devpost countdown before submission.
-
-| Requirement | Current status | Evidence / next action |
+| Requirement | Current status | Evidence / owner action |
 |---|---|---|
-| Select a primary track | Drafted | Alexa+ · simulated experience |
-| Demonstrate a working simulation | Implemented locally | Run README commands and record the ReadyAtHome browser journey |
-| Include simulation source | Implemented locally | Review frontend/src/readyathome.tsx, readyathome/, and backend/routers/readiness.py |
-| Public GitHub repo with open-source license, or private repo shared with judges | Blocked on owner choice | No LICENSE file exists. Choose/approve a license before public publication, or choose private sharing and invite reviewers |
-| Explain pre-existing project changes | Drafted | Review docs/SUBMISSION.md and historical July commits; confirm dates and description |
-| Demo video, public, English, less than 3 minutes | Not done | Record the real flow from DEMO_SCRIPT.md, publish to YouTube or Vimeo, and add the URL |
-| Product feedback for tools/API/SDKs used | Draft ready, not submitted | Review docs/product_feedback_draft.md, correct it to firsthand experience, then submit |
-| Identify mini-challenge | Drafted | No AWS Builder or Open Source mini-challenge is claimed |
-| Run setup and main journey from clean clone | Not yet done | Verify after owner approves repository publication/access |
-| Screenshots | Not captured | Capture actual initial page, plan/rationale, completed task/audit, and status labels |
-| Final Devpost entry | Not submitted | Owner completes track choice, description, code repository URL, video URL, product feedback, and submit |
+| Official rules, eligibility, deadline, track, and judging criteria | **BLOCKED / not rechecked live** | Devpost connection requires reauthentication. Verify official rules, FAQ, deadline, video, repository, and feedback requirements directly before submission. |
+| Working Alexa+ simulation and submitted source | **Local implementation present; remote worktree is stale** | `frontend/src/readyathome.tsx`, `readyathome/`, `backend/routers/readiness.py`. Current branch has uncommitted changes that are not on GitHub. |
+| Supported and unsupported request handling | **Local regression tests** | Flood/heavy-rain only; unsupported hazards return an error. Apparent immediate emergencies receive emergency-services guidance. |
+| Backend tests and Python compilation | See `SYSTEM_AUDIT.md` | Results recorded after the current code changes. |
+| Frontend type check and production build | See `SYSTEM_AUDIT.md` | Verify built ReadyAtHome entry after the current code changes. |
+| Frontend mount regression test | See `SYSTEM_AUDIT.md` | `npm test` checks the page points at a React entry and the entry mounts the component. |
+| Browser walk-through, console, and mobile viewport | **NOT VERIFIED** | Browser automation was unavailable. Inspect the real running app at desktop and mobile sizes; capture no synthetic screenshots. |
+| Security and secret scan | See `SYSTEM_AUDIT.md` | No actual environment values should be printed or committed. Local prototype is not production-authenticated. |
+| Fresh temporary install | See `SYSTEM_AUDIT.md` | Must be run separately without replacing this dirty working tree. |
+| Repository branch and URL | **BLOCKED for submission** | GitHub confirms the repo is public and the branch exists. Remote `frontend/ready-at-home.html` still references the unmounted component; the tested local fix is uncommitted and not on the reviewer branch. |
+| License or reviewer access | **BLOCKED on owner choice and live rules check** | No tracked `LICENSE`; do not add one or change access without owner direction. Verify current private reviewer instructions in the live FAQ. |
+| README and setup | **Updated; verify after checks** | `README.md` documents Python/Node prerequisites, local API/frontend, testing, geographic scope, and local-only limitations. |
+| Submission narrative | **Draft** | Review `docs/SUBMISSION.md` and replace any text that does not match the owner's experience. |
+| Product feedback | **Draft; owner answers required** | `docs/product_feedback_draft.md`; no Amazon SDK or AWS service was used by ReadyAtHome. Not submitted. |
+| Demo script | **Prepared, not recorded** | `DEMO_SCRIPT.md`; record the actual working app in English and under three minutes. |
+| Screenshots | **Not captured** | Follow `docs/SCREENSHOT_PLAN.md`; capture only from the real app. |
+| Video and public URL | **Not done** | Upload a real video to YouTube or Vimeo; verify public access and runtime. |
+| Devpost form and final submission | **Not done by this work; live state unverified** | Reauthenticate, verify current requirements, complete all fields, and confirm the final entry URL/ID. |
 
-## Owner checklist before submission
+## Owner actions still required
 
-- Choose repository access: public with an approved license, or private with reviewer access configured.
-- Confirm the repo is accessible to judges and contains the final code and README.
-- Record and review the video; ensure the full project journey and safety boundaries are visible.
-- Review all submission copy and product feedback for accuracy.
-- Submit the project on Devpost. This workspace work did not submit it.
+1. Reauthenticate the Devpost connection and verify the rules, deadline, track label, reviewer requirements, and submission status.
+2. Review local changes and decide which should be committed and pushed; this work did not commit or push.
+3. Choose the repository-access route and make any license or visibility decision.
+4. Inspect desktop/mobile behavior, capture real screenshots, and record/upload the demo video.
+5. Personalize the narrative and product feedback from firsthand experience, then submit the entry and verify the confirmation.

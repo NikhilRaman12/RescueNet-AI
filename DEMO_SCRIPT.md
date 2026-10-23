@@ -1,71 +1,62 @@
-﻿# ReadyAtHome demo script · target 2:40
+# ReadyAtHome demo script · target 2:40
 
-**Recording requirement:** capture the real application running in a browser. Do not add simulated metrics, a fake device connection, or unrecorded results. Keep the final video under three minutes, publish it in English on YouTube or Vimeo, and show the new ReadyAtHome interaction.
+Record the actual local application in a browser. Keep the video under three minutes, in English, and publish it on YouTube or Vimeo. Do not add simulated device connections, live data, or unrecorded results.
 
 ## Before recording
 
-- Start FastAPI from the repository root with USE_LIVE_APIS=false.
-- Start Vite in frontend and open http://127.0.0.1:5173/ready-at-home.html.
-- Keep the browser on the ReadyAtHome page and clear only unrelated browser tabs from view.
-- Do not show terminal environment variables, secrets, private data, or the ignored local database.
-- Use the sample utterance already shown in the page.
+- Start the API and Vite as described in README.md; use `USE_LIVE_APIS=false`.
+- Open `http://127.0.0.1:5173/ready-at-home.html`.
+- Use the visible sample request. Do not show terminal variables, secrets, local database files, or personal data.
+- If using an existing task history, show it as local activity rather than a new-session result. **New rehearsal** resets browser flags but intentionally keeps that history.
 
-## Timed narration
+## Timed walkthrough
 
-### 0:00–0:15 · Introduce the product
+### 0:00–0:15 · The promise
 
-**Say:** “ReadyAtHome turns a household preparedness request into a short, explainable plan. This is an independent Alexa+ interaction simulation for the Amazon Developer Hackathon.”
+**Say:** “ReadyAtHome turns one household-preparedness question into a clear, explainable plan. This is an independent Alexa+ interaction simulation.”
 
-**Show:** ReadyAtHome title and the visible simulation badge.
+**Show:** Product heading, simulation badge, and typed input.
 
-### 0:15–0:35 · Start the reproducible request
+### 0:15–0:40 · Generate the plan
 
-**Say:** “I’ll ask for help preparing for possible flooding. The text simulates a voice request; this browser has no microphone or Alexa connection.”
+**Say:** “I’ll ask for help preparing for possible flooding. The app accepts flood and heavy-rain preparation requests; its rules choose a fixed checklist.”
 
-**Show:** Submit the sample request and wait for the response card.
+**Show:** Submit the sample and point to the U.S. guidance label, planning-scenario summary, and completed/remaining count.
 
-### 0:35–1:00 · Explain the assessment
+### 0:40–1:15 · Explain the steps and sources
 
-**Say:** “The local rules choose a flood-preparedness checklist. This is a planning scenario, not a forecast. It did not check my location or current alerts.”
+**Say:** “Each step explains what to do, why it appears, and the reference behind it. These are U.S. government guidance links, not live information fetched by this app.”
 
-**Show:** Scenario label, assumptions, rationale, and the ‘not connected’ weather/alerts status.
+**Show:** Expand a task explanation and show its source link. Keep the assumptions and no-live-alert status visible.
 
-### 1:00–1:40 · Inspect the checklist
+### 1:15–1:45 · Complete and reopen a task
 
-**Say:** “The first step is to check official local alerts. I can open the reason for each suggestion and see the FEMA, Ready.gov, or National Weather Service reference behind it.”
+**Say:** “I can complete and reopen a step. Progress updates, and the local backend records the action and time without storing the request text.”
 
-**Show:** Open a task’s explanation, then point to the official source links without implying that the app fetched them.
+**Show:** Check and uncheck a task; point to the updated progress and newest activity event.
 
-### 1:40–2:05 · Record a task
+### 1:45–2:10 · Recover safely from unsupported and urgent input
 
-**Say:** “I’ll mark the official-alert check complete. The checklist progress changes, and the local audit view records only the task ID and time.”
+**Say:** “A hurricane request is outside the supported scope, so the app does not return a misleading flood plan. If a request suggests immediate danger, it points people to local emergency services instead of showing a routine checklist.”
 
-**Show:** Check the task and show the activity item.
+**Show:** Enter “Help me prepare for a hurricane,” submit, then try “My house is flooding right now.” Show each recovery message and leave the text visible.
 
-### 2:05–2:25 · State the boundaries
+### 2:10–2:30 · Reset without deleting history
 
-**Say:** “Weather, evacuation orders, routes, shelter availability, speech recognition, and Amazon services are not connected. The request text is not stored.”
+**Say:** “New rehearsal clears this browser’s checklist marks. The SQLite activity history remains available when I generate the plan again.”
 
-**Show:** Integration status and safety footer.
+**Show:** Generate the supported plan again if needed, complete one task, choose **New rehearsal**, then generate the plan and show retained activity.
 
-### 2:25–2:40 · Close
+### 2:30–2:40 · Close with the boundary
 
-**Say:** “ReadyAtHome helps rehearse preparedness steps. During an emergency, follow official local alerts and emergency services.”
+**Say:** “There is no microphone, Alexa connection, live alert, evacuation route, or shelter data. Follow current local authorities in a real emergency.”
 
-**Show:** End on the full page with the prototype notice visible.
+**Show:** End on the simulation label and safety footer.
 
-## Reproducible demo flow
+## Evidence checklist
 
-1. Type the sample flood-preparedness request and submit it.
-2. Read the planning-scenario status and assumptions.
-3. Expand one “Why this is on the list” detail.
-4. Mark one checklist item complete.
-5. Show the matching recent-activity event.
-6. Show simulation and not-connected labels plus the safety notice.
-
-## Evidence still needed
-
-- Record the actual browser journey described above.
-- Take real screenshots of the initial ReadyAtHome page, generated plan and rationale, task completion with audit event, and integration/safety labels.
-- Publish the video publicly on YouTube or Vimeo and add its URL to the submission.
-- Do not fabricate device access, alerts, user feedback, deployment, or judging evidence.
+- Capture real footage of the sequence above and verify the final runtime is under three minutes.
+- Do not describe this as a hardware or official Alexa+ integration.
+- Screenshots to capture from the real app: initial request and simulation label; generated plan with U.S. guidance and task rationale; a completed task with recent activity; unsupported-input recovery; reset message and safety footer.
+- No screenshot is currently included. The browser automation surface was unavailable during this verification run, so capture from a working browser before submission.
+- Publish the actual video and add its verified URL to the submission; no video URL is prepared yet.

@@ -1,25 +1,24 @@
-﻿# Hackathon requirement traceability · ReadyAtHome
+# Judging alignment · ReadyAtHome
 
-Primary track selected for this draft: **Alexa+ simulated experience**. The official rule and FAQ sources were checked on 2026-10-22. This is a local readiness review, not an official eligibility ruling.
+**Draft route:** Alexa+ simulated experience. The live official rules were not rechecked on 2026-10-23 because the connected Devpost account returned an authentication-required error. The links below are the official pages to verify before submission; the statements in this file are a local draft, not an eligibility ruling.
 
-| Hackathon requirement | Implementation | Evidence | Verification method | Status | Remaining gap |
-|---|---|---|---|---|---|
-| Working Alexa+ track experience; simulation is an allowed route | Separate text-based interaction simulates the voice-assistant experience and makes the simulation explicit | frontend/ready-at-home.html; frontend/src/readyathome.tsx | Vite build, local browser/API journey | Source and API implemented; browser check pending | Record the running demo for judges |
-| Simulation source included in repository | UI, API, request rules, and response models are repository source | frontend/src/readyathome.tsx; readyathome/; backend/routers/readiness.py | Clone, install, run documented commands | Implemented locally | Publish/share repository with chosen access settings |
-| Simulated experience visibly works in demo video under three minutes | Timed script shows request, deterministic plan, rationale, task update, and audit event | DEMO_SCRIPT.md | Record and time the actual application | Script ready; video not recorded | Record a public English YouTube or Vimeo video under three minutes |
-| Clear setup/run instructions and working project | README documents two local processes and one reproducible flow | README.md | Follow from a clean clone; run frontend build and API tests | Documented; clean-clone run pending | Verify after dependencies are installed from lock files |
-| Public GitHub repository includes an open-source license, or private repository is shared with judges | No license is tracked; no repository visibility change was made | Git index contains no LICENSE file | Owner checks repository settings and license | Blocked | Owner selects a license or uses private-repo sharing process; no publication performed |
-| Existing project significantly updated during event period and update explained | New ReadyAtHome page/API/checklist/audit flow is distinct from the July RescueNet responder project | Git history; README.md; docs/SUBMISSION.md | Compare pre-event history with submitted branch and demo the new journey | Documented locally | Owner should ensure work date falls in submission period and publish the change |
-| Product feedback for tools, APIs, and SDKs used | Honest draft distinguishes project tooling from Amazon services; no Amazon/AWS API or SDK was used | docs/product_feedback_draft.md | Owner reviews and pastes final feedback into Devpost | Draft ready; not submitted | Review, then submit feedback on Devpost |
-| Identify primary track and mini-challenge entries | Alexa+ simulated experience selected; no mini-challenge claimed | docs/SUBMISSION.md; SUBMISSION_CHECKLIST.md | Compare submission form entries | Drafted | Owner selects the same entries on Devpost |
-| Use actual sources and label mock/unavailable integrations | FEMA, Ready.gov, and NWS are reference links only; weather, alerts, shelters, Alexa+, and AWS are not connected | readyathome/service.py; UI integration status cards | Inspect response labels and runtime network behavior | Implemented; covered by tests | Keep recording and written copy consistent |
-| Emergency information is clearly bounded | Safety copy directs people to local alerts/services and says this is not dispatch | frontend/src/readyathome.tsx | Inspect visible footer and plan copy | Implemented | Ensure demo video does not crop out or contradict caveat |
-| Optional friction log (up to 10% judging bonus) | No friction log is claimed because no verified Amazon-tool failure was encountered by using the gated tools | This document and product-feedback draft | Review any future actual friction before reporting it | No entry drafted | Add only firsthand, evidence-backed friction if it occurs |
+| Criterion | Real feature | Demo evidence | Status / limit |
+|---|---|---|---|
+| Tech Implementation | React/TypeScript browser simulation backed by FastAPI, deterministic flood/heavy-rain rules, and a local SQLite audit trail. | Generate a plan, complete/reopen a task, and inspect activity. | Local checks are recorded in `SYSTEM_AUDIT.md`. No Alexa runtime, AWS integration, or MCP server is claimed. |
+| Design | Focused request flow, visible U.S. scope, source-linked explanations, task progress, reset, and recovery messages. | Show the request, one explanation, completion, and unsupported-input handling. | Desktop/mobile visual inspection and screenshots remain unverified. |
+| Potential Impact | General flood-preparedness rehearsal for households, with official reference links and reminders to use local authorities. | Explain how a short checklist can help people organize preparation before an event. | No user research, adoption, outcome, or impact metric is claimed. Guidance is U.S.-specific and not personalized. |
+| Quality of the Idea | Makes a narrow planning flow explainable and shows what the simulation cannot know or do. | Point out the selected rule, assumptions, sources, and disconnected live services. | One intent only; no live risk assessment, location, alerts, routes, or dispatch. |
 
-## Official sources
+## Requirements to verify from official pages
 
-- Rules: https://amazonappdev2026.devpost.com/rules
-- FAQ: https://amazonappdev2026.devpost.com/details/faqs
-- Organizer clarification: https://amazonappdev2026.devpost.com/forum_topics/45058-clarification-on-simulated-alexa-web-experience-requirements
+- [Hackathon rules](https://amazonappdev2026.devpost.com/rules)
+- [Hackathon FAQ](https://amazonappdev2026.devpost.com/details/faqs)
+- [Organizer clarification](https://amazonappdev2026.devpost.com/forum_topics/45058-clarification-on-simulated-alexa-web-experience-requirements)
 
-The rules specify a public English video on YouTube or Vimeo under three minutes and request product feedback for each tool, API, or SDK used. The FAQ states that participant access to Alexa+ add-on tools is not available because they are limited to select partners.
+The local submission draft records an Alexa+ simulation route, a public English demo video under three minutes, source repository access with the required license/reviewer setup, product feedback for tools actually used, and an explanation of changes to the existing project. These items and the deadline must be checked against the live official pages before entry. The current Devpost connection is unauthorized, so this run cannot confirm eligibility, dates, reviewer names, or submission fields.
+
+## Repository and submission state
+
+The target is `https://github.com/NikhilRaman12/RescueNet-AI`, branch `feat/ready-at-home-sim-experience`. A read-only GitHub check confirmed the repository is public and the branch exists. Its current HTML still loads the unmounted React component directly; the tested local mount fix and other worktree changes are not on GitHub yet. No tracked `LICENSE` exists. The owner must choose and complete an approved public-license route or verify the current private-reviewer process. No video, screenshots, product-feedback response, or Devpost submission is verified.
+
+AWS Builder and Open Source mini-challenges are not claimed. No AWS service is used by ReadyAtHome.

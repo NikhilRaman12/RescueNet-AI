@@ -1,6 +1,56 @@
 ﻿# RescueNet AI forensic audit · ReadyAtHome work
 
-Audit date: 2026-10-22 (client date)
+Historical notes below include an audit dated 2026-10-22. Current verification date: 2026-10-23 (client date).
+
+## Current verification · 2026-10-23
+
+### Repository state
+
+- Working directory: `C:\Users\Nikhil Raman K\RescueNet-AI`.
+- Branch: `feat/ready-at-home-sim-experience`.
+- `HEAD` and `origin/feat/ready-at-home-sim-experience` both point to `8bbe0ba` (`docs: record ReadyAtHome branch publication status`). Remote: `https://github.com/NikhilRaman12/RescueNet-AI.git`.
+- A read-only GitHub check confirmed the repository is public and the feature branch exists. The remote branch's `frontend/ready-at-home.html` still imports `src/readyathome.tsx` directly and lacks the new React mount entry. This confirms that the local fix and other worktree changes have not reached the submitted code.
+- The worktree has modified tracked files and untracked build/documentation artifacts. The current local changes are not on the remote. No files were staged, committed, or pushed during this verification.
+- Existing `slack_app/slack_client.py` one-line blank-line change remains preserved.
+
+### Audit performed and changes made
+
+- Reviewed the ReadyAtHome service, Pydantic models, API router, React page and styles, tests, Vite configuration, lockfile, Python requirements, environment template, Docker Compose, API startup, SQLite store, and the existing submission documents.
+- Found that urgent flood requests could receive the ordinary planning checklist. Added a bounded immediate-danger detector that returns local emergency-services guidance and does not return a plan; added three API regression cases.
+- Found that the ReadyAtHome HTML loaded an exported component without mounting it. The production entry bundle was only 56 bytes and contained no app UI. Added `frontend/src/readyathome-main.tsx` to mount the component, then pointed the page to that entry. The rebuilt app entry is 17.46 kB and includes the application UI.
+- Removed an unused fixed fallback value for `A2A_SHARED_SECRET`. Repository search found no consumer of that setting. No credentials are included in `.env.example`.
+- Updated activity/privacy wording: the audit table records plan-generation and task-action events; it excludes request text. Updated submission materials to mark official rules as not rechecked in this pass, because Devpost returned an authentication-required error.
+- Added `docs/DEVPOST_FINAL_CHECKLIST.md` and `docs/SCREENSHOT_PLAN.md`. No video or screenshot was created.
+
+### Commands and results in the current working tree
+
+| Command / check | Result |
+|---|---|
+| `git status --short`, `git branch --show-current`, `git log -8 --oneline --decorate`, `git remote -v` | Branch and tracking commit confirmed; dirty worktree, current edits unpushed. |
+| `python -m pytest -q` with live APIs off and model-key variables blank | **115 passed**, 3 dependency deprecation/future warnings, 87.88 s. |
+| `python -m compileall -q readyathome backend\routers\readiness.py tests` | Passed. |
+| `npm.cmd exec tsc -- --noEmit` | Passed. |
+| `npm.cmd test` | **2 passed**; verifies the ReadyAtHome HTML loads the React mount entry and that the entry mounts the component. |
+| `npm.cmd run build` | Passed; emitted both `dist/index.html` and `dist/ready-at-home.html`. The ReadyAtHome app bundle is 17.46 kB (gzip 5.79 kB); the previous broken bundle was only 56 bytes. |
+| `git diff --check` | Passed. Git emitted line-ending normalization warnings only. |
+| Local HTTP smoke | `GET /health` returned `operational`; Vite page and transformed React mount module returned HTTP 200; page references `readyathome-main.tsx`; updated urgent-flood API request returned HTTP 422. A temporary Vite production preview returned HTTP 200 for the page and its final 17,460-byte ReadyAtHome app bundle. TestClient verifies the emergency response body. |
+| Secret scan | No high-confidence AWS/GitHub/Slack token, private-key, or credential-assignment pattern in tracked/current nonignored files; no tracked `.env`, `.pem`, or `.key` files. Root and backend `.env` files were absent. `gitleaks` is not installed; this is not a full historical secret scan. |
+
+### Fresh temporary clone/install
+
+- A separate clone of the local feature branch was created, then the current tracked diff and new build/documentation files were overlaid so the clone represents the final uncommitted source snapshot. It is not a clone of a newly pushed remote commit.
+- `npm ci` passed in the clone (24 packages).
+- `python -m venv .venv` and `pip install -r requirements.txt` passed in the clone after sandbox network approval.
+- In that clone: full pytest **115 passed, 1 legacy Google Generative AI deprecation warning**; compileall passed; frontend mount test **2 passed**; TypeScript check passed; production build passed with the real ReadyAtHome bundle.
+- The temporary clone was isolated from the working tree database and dependencies. The GitHub feature branch still does not contain these local edits.
+
+### Not verified / remaining blockers
+
+- Browser-driven desktop and mobile walkthrough, keyboard/contrast visual review, and console inspection: **NOT VERIFIED**. The available computer-use runtime was unavailable.
+- Current Devpost rules, eligibility, deadline, judging criteria, required feedback/video/repository fields, and live submission status: **BLOCKED**. The connected Devpost service reported that reauthentication is required. The historical review below is not a substitute for a current check.
+- Video, screenshots, participant-verified product feedback, repository license/access decision, and Devpost submission: not completed.
+- The API remains a local prototype with no authentication or multi-user isolation. Guidance is fixed, general U.S. reference content, not live or personalized.
+- Python dependencies use lower bounds without a lockfile; the clean install passed with versions available on 2026-10-23, but future resolution may change. The frontend does have `package-lock.json` and was installed with `npm ci`.
 
 ## Starting repository state
 

@@ -1,6 +1,13 @@
-from fastapi.testclient import TestClient
+from datetime import datetime, timezone
+from urllib.parse import urlsplit
 
+import pytest
+from fastapi.testclient import TestClient
+from pydantic import ValidationError
+
+from backend.config.settings import CORS_ORIGINS
 from backend.main import app
+from readyathome.models import ReadinessRequest
 from readyathome.service import DEMO_UTTERANCE, build_readiness_plan
 from rescuenet_slack.store import get_audit_trail
 
@@ -44,13 +51,109 @@ def test_plan_route_recognizes_supported_flood_request():
 
     assert response.status_code == 200
     assert response.json()["intent"] == "flood_preparedness"
+    assert response.json()["guidance_region"] == "United States"
+
+
+@pytest.mark.parametrize(
+    "utterance",
+    [
+        "My house is flooding right now.",
+        "My house is on fire right now.",
+        "We are trapped by rising floodwater.",
+        "Someone is in immediate danger and needs help now.",
+        "My father is having a stroke.",
+        "I cannot breathe.",
+    ],
+)
+def test_plan_route_returns_emergency_guidance_instead_of_a_checklist(utterance):
+    response = client.post("/api/readiness/plan", json={"utterance": utterance})
+
+    assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert "contact your local emergency services now" in detail
+    assert "cannot assess conditions or send help" in detail
+
+
+@pytest.mark.parametrize(
+    "utterance",
+    [
+        "Help me prepare for a storm.",
+        "Help me prepare for a hurricane.",
+        "Help me prepare for a cyclone.",
+        "Help me prepare for monsoon season.",
+        "Help me prepare for a thunderstorm.",
+        "Help me prepare for a typhoon.",
+        "Help me prepare for a tsunami.",
+        "Help me prepare for a drought.",
+        "Help me prepare for flooding during a hurricane.",
+    ],
+)
+def test_plan_route_rejects_hazards_outside_supported_scope(utterance):
+    response = client.post("/api/readiness/plan", json={"utterance": utterance})
+
+    assert response.status_code == 422
+    assert "supports flood or heavy-rain preparedness only" in response.json()["detail"]
+
+
+@pytest.mark.parametrize("utterance", ["", "  ", "a", " a ", 123, None, "flood " + ("x" * 240)])
+def test_readiness_request_rejects_invalid_input(utterance):
+    with pytest.raises(ValidationError):
+        ReadinessRequest.model_validate({"utterance": utterance})
+
+
+def test_readiness_plan_sources_are_secure_official_us_references():
+    plan = build_readiness_plan(DEMO_UTTERANCE)
+
+    assert plan.guidance_region == "United States"
+    assert len(plan.sources) == 3
+    for source in plan.sources:
+        parsed = urlsplit(source.url)
+        assert parsed.scheme == "https"
+        assert parsed.hostname is not None
+        assert parsed.hostname.endswith(".gov")
+        assert source.kind == "official_guidance"
+
+
+def test_cors_allows_local_frontend_and_denies_unknown_origin():
+    assert "*" not in CORS_ORIGINS
+    for origin in ("http://localhost:5173", "http://127.0.0.1:5173"):
+        allowed = client.options(
+            "/api/readiness/plan",
+            headers={"Origin": origin, "Access-Control-Request-Method": "POST"},
+        )
+        assert allowed.headers.get("access-control-allow-origin") == origin
+
+    denied = client.options(
+        "/api/readiness/plan",
+        headers={"Origin": "https://example.invalid", "Access-Control-Request-Method": "POST"},
+    )
+    assert denied.headers.get("access-control-allow-origin") is None
+
+
+def test_activity_is_utc_latest_first_and_capped_at_thirty_items():
+    plan_response = client.post("/api/readiness/plan", json={"utterance": DEMO_UTTERANCE})
+    assert plan_response.status_code == 200
+
+    for index in range(32):
+        response = client.post(
+            "/api/readiness/tasks/check-official-alerts",
+            json={"completed": index % 2 == 0},
+        )
+        assert response.status_code == 200
+
+    items = client.get("/api/readiness/activity").json()["items"]
+    assert len(items) == 30
+    assert items[0]["action"] == "readiness_task_reopened"
+    assert items[1]["action"] == "readiness_task_completed"
+    timestamps = [datetime.fromisoformat(item["timestamp"]) for item in items]
+    assert all(timestamp.tzinfo == timezone.utc for timestamp in timestamps)
 
 
 def test_plan_route_rejects_unsupported_request():
     response = client.post("/api/readiness/plan", json={"utterance": "Help me plan a birthday party."})
 
     assert response.status_code == 422
-    assert "supports flood or heavy-rain" in response.json()["detail"]
+    assert "does not create plans for other hazards" in response.json()["detail"]
 
 
 def test_plan_route_bounds_input_length():
