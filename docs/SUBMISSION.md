@@ -4,7 +4,7 @@
 
 **Mini-challenge:** None claimed
 
-**Submission status:** Not submitted. Live Devpost checks on 2026-10-23 show a blank `Untitled` pre-draft (project ID `1503309`) for this hackathon with no submission timestamp. The Devpost connection is authenticated.
+**Submission status:** The Devpost project page (ID `1503309`) is published at https://devpost.com/software/readyathome-emergency-preparedness-simulator. Its hackathon entry has `submitted_at: null`; it has not been entered yet. The Devpost connection is authenticated.
 
 **Deadline:** October 23, 2026 at 12:00 p.m. Pacific / 19:00 UTC / October 24 at 12:30 a.m. India Standard Time, verified against live Devpost data on October 23.
 

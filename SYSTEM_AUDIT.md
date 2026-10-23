@@ -9,7 +9,7 @@ Historical notes below include an audit dated 2026-10-22. Current verification d
 - Working directory: `C:\Users\Nikhil Raman K\RescueNet-AI`.
 - The verified feature commit is `8e5562ca8413fbbc008136dd2b1ce19a76fc033f` (`feat: finalize ReadyAtHome submission build`). It is present on `feat/ready-at-home-sim-experience` and included in default-branch merge commit `07d79e00a6adb580ca0e97770e4b7877fc1014a1`.
 - GitHub confirmed the repository is public and `main` serves `frontend/ready-at-home.html` through `frontend/src/readyathome-main.tsx`, the React mount entry.
-- Live Devpost checks on 2026-10-23 at 17:20 UTC showed an authenticated account registered for the event and an empty `Untitled` pre-draft (project ID `1503309`) with `submitted_at: null`.
+- Live Devpost checks on 2026-10-23 showed the project page for project `1503309` published with the corrected ReadyAtHome copy. Its hackathon entry still has `submitted_at: null`.
 - The initial code commit includes the pre-existing one-line blank-line change in `slack_app/slack_client.py`.
 
 ### Audit performed and changes made
@@ -46,7 +46,7 @@ Historical notes below include an audit dated 2026-10-22. Current verification d
 ### Not verified / remaining blockers
 
 - Browser-driven desktop and mobile walkthrough, keyboard/contrast visual review, and console inspection: **NOT VERIFIED**. The available computer-use runtime was unavailable.
-- Current Devpost rules, requirements, deadline, latest announcements, and live project status were checked through the authenticated connection on 2026-10-23. The entrant's personal eligibility answers and agreement remain unconfirmed; the live project is still an empty pre-draft, not a submission.
+- Current Devpost rules, requirements, deadline, latest announcements, and live project status were checked through the authenticated connection on 2026-10-23. The project page is published; the hackathon entry has no submission timestamp. The entrant's personal eligibility answers remain pending.
 - Video, screenshots, participant-verified product feedback, repository license/access decision, and Devpost submission: not completed.
 - The API remains a local prototype with no authentication or multi-user isolation. Guidance is fixed, general U.S. reference content, not live or personalized.
 - Python dependencies use lower bounds without a lockfile; the clean install passed with versions available on 2026-10-23, but future resolution may change. The frontend does have `package-lock.json` and was installed with `npm ci`.

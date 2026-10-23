@@ -1,11 +1,11 @@
 # Devpost final checklist · draft
 
-**Status:** Not submitted. Live Devpost checks on 2026-10-23 confirmed an existing blank `Untitled` pre-draft (project ID `1503309`) for this hackathon; its `submitted_at` value is null. The account connection is authenticated.
+**Status:** Project page published, hackathon entry not submitted. Live Devpost project `1503309` has `submitted_at: null`. Project page: https://devpost.com/software/readyathome-emergency-preparedness-simulator. The account connection is authenticated.
 
 ## Submission fields
 
-- [ ] Project title: ReadyAtHome (the live Devpost pre-draft still says `Untitled`)
-- [ ] Tagline and short description: review `docs/SUBMISSION.md`
+- [ ] Project title: ReadyAtHome (saved on the live project page; owner review pending)
+- [ ] Tagline and short description: saved on the live project page; owner review pending
 - [ ] Problem, target household, solution, impact, and next steps: review and personalize `docs/SUBMISSION.md`
 - [ ] What changed during the hackathon: confirm the wording against the actual commits and working tree
 - [ ] Challenges and learning: participant to complete from firsthand experience
@@ -19,7 +19,7 @@
 - [ ] Repository access: owner decision required; repo is public and has no tracked `LICENSE`
 - [ ] Product feedback: complete from firsthand experience; review `docs/product_feedback_draft.md`; not submitted
 - [ ] Screenshots: capture real application screens; none are verified as captured
-- [ ] Final form fields: verify required text, links, track, and video against the live form
+- [ ] Final form fields: complete required personal answers, feedback, repo access, track, and video against the live form
 - [ ] Final owner review and submission: pending; submit only after all required fields and access conditions are satisfied
 
 ## Repository access decision
@@ -38,5 +38,5 @@ The live form requires a public repo to include an open-source license, or a pri
 - Video URL and runtime: **PENDING**
 - Repository URL and tested code on default `main`: `https://github.com/NikhilRaman12/RescueNet-AI` / **verified**
 - Product feedback submitted: **NO / pending**
-- Devpost submitted: **NO; live project `1503309` has `submitted_at: null`**
+- Devpost project page: **published**; hackathon entry: **not submitted (`submitted_at: null`)**
 - Submission confirmation URL or ID: **PENDING**

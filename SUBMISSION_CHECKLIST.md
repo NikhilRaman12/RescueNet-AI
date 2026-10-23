@@ -21,12 +21,12 @@
 | Demo script | **Prepared, not recorded** | `DEMO_SCRIPT.md`; record the actual working app in English and under three minutes. |
 | Screenshots | **Not captured** | Follow `docs/SCREENSHOT_PLAN.md`; capture only from the real app. |
 | Video and public URL | **Not done** | Upload a real video to YouTube or Vimeo; verify public access and runtime. |
-| Devpost form and final submission | **Draft entry exists; not submitted** | Live project `1503309` is an empty `Untitled` pre-draft with `submitted_at: null`. Fill required fields and verify the final status. |
+| Devpost project and event entry | **Project page published; event entry not submitted** | Project `1503309` is public at https://devpost.com/software/readyathome-emergency-preparedness-simulator; its event `submitted_at` remains null. Required personal answers, feedback, repo access, and video are pending. |
 
 ## Owner actions still required
 
 1. Review the official rules and personally confirm eligibility and terms.
-2. Update the empty Devpost pre-draft with accurate project details and the verified repository URL.
+2. Review the saved Devpost project copy, complete the required personal answers and feedback, and add the verified repository/video details.
 3. Choose the repository-access route and make any license or visibility decision.
 4. Inspect desktop/mobile behavior, capture real screenshots, and record/upload the demo video.
 5. Personalize the narrative and product feedback from firsthand experience, then submit the entry and verify the confirmation.

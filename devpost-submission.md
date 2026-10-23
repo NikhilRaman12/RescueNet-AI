@@ -1,6 +1,8 @@
 # ReadyAtHome · Devpost submission draft
 
-**State:** Draft only. Live Devpost project 1503309 is an empty pre-draft; no submission has been sent.
+**State:** Project page published; the hackathon entry is not submitted. Live Devpost project 1503309 has `submitted_at: null` for this event.
+
+**Project page:** https://devpost.com/software/readyathome-emergency-preparedness-simulator
 
 ## Project fields
 
